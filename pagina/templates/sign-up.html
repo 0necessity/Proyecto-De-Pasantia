@@ -1,0 +1,122 @@
+{% extends "house.html" %} {% block title %}Sign Up{% endblock %}
+
+{% block cont %}
+
+<img src="data:image/png;base64,{{ image_data }}" />  -->
+<form method="POST" enctype="multipart/form-data">
+  <h3 align="center">Sign Up</h3>
+  <div class="form-group">
+    <label for="email">Email Address</label>
+    <input
+      type="email"
+      class="form-control"
+      id="email"
+      name="email"
+      placeholder="Enter email"
+    />
+  </div>
+  <div class="form-group">
+    <label for="firstName">First Name</label>
+    <input
+      type="text"
+      class="form-control"
+      id="firstName"
+      name="firstName"
+      placeholder="Enter first name"
+    />
+  </div>
+  <div class="form-group">
+    <label for="lastName">Last Name</label>
+    <input
+      type="text"
+      class="form-control"
+      id="lastName"
+      name="lastName"
+      placeholder="Enter last name"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="password1">Password</label>
+    <input
+      type="password"
+      class="form-control"
+      id="password1"
+      name="password1"
+      placeholder="Enter password"
+    />
+  </div>
+  <div class="form-group">
+    <label for="password2">Password (Confirm)</label>
+    <input
+      type="password"
+      class="form-control"
+      id="password2"
+      name="password2"
+      placeholder="Confirm password"
+    />
+  </div>
+  <div class="form-group">
+    <label for="picture">Take a picture of your face:</label>
+        <input type="file" name="image" id="image" onchange="previewImage(event)">
+        <img id="preview">
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const preview = document.getElementById('preview');
+                preview.src = reader.result;
+            }
+            reader.readAsDataURL(event.target.files[0]);}
+    </script>
+    <style>
+        img {
+            width: 50px;
+        }
+    </style>
+  </div>
+
+  <div>
+    <label for="day">Day:</label>
+    <select id="day" name="day">
+        {% for day in range(1, 32) %}
+            <option value="{{day}}">{{day}}</option>
+        {% endfor %}
+    </select>
+    <label for="month">Month:</label>
+    <select id="month" name="month">
+        <option value="1">January</option>
+        <option value="2">February</option>
+        <option value="3">March</option>
+        <option value="4">April</option>
+        <option value="5">May</option>
+        <option value="6">June</option>
+        <option value="7">July</option>
+        <option value="8">August</option>
+        <option value="9">September</option>
+        <option value="10">October</option>
+        <option value="11">November</option>
+        <option value="12">December</option>
+    </select>
+    <label for="year">Year:</label>
+    <select id="year" name="year">
+        {% for year in y %}
+            <option value="{{year}}">{{year}}</option>
+        {% endfor %}
+    </select>
+
+  </div>
+
+  <div class="form-group">
+    <label for="role">Role (I suppose?)</label>
+     <select id="role" name="role">
+        <option value="admin">Administrador</option>
+        <option value="Editor">Editor</option>
+        <option value="Administrador de inventario">Administrador de inventario</option>
+        <option value="Supervisor">Supervisor</option>
+     </select>
+  </div>
+  <br />
+  <button type="submit" value="Upload" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}

@@ -1,0 +1,17 @@
+
+{% extends "house.html" %}
+{% block cont %}
+<form method="POST">
+  <div class="form-group">
+    <label for="role">Role (I suppose?)</label>
+     <select id="role" name="role">
+        <option value="admin">Administrador</option>
+        <option value="Editor">Editor</option>
+        <option value="Administrador de inventario">Administrador de inventario</option>
+        <option value="Supervisor">Supervisor</option>
+     </select>
+  </div>
+  <br />
+  <button type="submit" value="Upload" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}
