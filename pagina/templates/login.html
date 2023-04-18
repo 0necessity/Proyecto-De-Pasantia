@@ -1,7 +1,15 @@
 {% extends "house.html" %} {% block title %}Login{% endblock %}
 
 {% block cont %}
-<form method="POST">
+<!-- CHANGE THIS <STYLE> TO THE STATIC DIRECTORY LATER -->
+<style>
+  #forum {
+    border-bottom: 1px solid black;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+  }
+</style>
+<form method="POST" id="forum">
   <h3 align="center">Login</h3>
   <div class="form-group">
     <label for="email">Email Address</label>
@@ -26,4 +34,6 @@
   <br />
   <button type="submit" class="btn btn-primary">Login</button>
 </form>
+<p>Or sign up using your <a href="http://127.0.0.1:5000/logan">Google Account</a></p>
+
 {% endblock %}
