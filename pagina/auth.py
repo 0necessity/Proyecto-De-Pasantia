@@ -21,14 +21,10 @@ import google.auth.transport.requests
 import random
 import string
 
-
-
-
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1" # to allow Http traffic for local dev
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # to allow Http traffic for local dev
 
 GOOGLE_CLIENT_ID = "767012225869-o403codh716ib53pnug7pdhpmnqs7mid.apps.googleusercontent.com"
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
-
 
 auth = Blueprint("auth", __name__)
 Base = declarative_base()
@@ -47,7 +43,7 @@ class SignUp(Base):
     except:
         pass
 
-    def __init__(self, name,emails,role, lastname, password, photo):
+    def __init__(self, name, emails, role, lastname, password, photo):
         self.name = name
         self.emails = emails
         self.role = role
@@ -66,19 +62,22 @@ session = Session()
 
 flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
-    scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
+    scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email",
+            "openid"],
     redirect_uri="http://127.0.0.1:5000/callback"
 )
 
 globo = {}
-def login_is_required(function):
-    def wrapper(*args, **kwargs):
-        if "google_id" not in sa:
-            return abort(401)  # Authorization required
-        else:
-            return function()
 
-    return wrapper
+
+# def login_is_required(function):
+#     def wrapper(*args, **kwargs):
+#         if "google_id" not in sa:
+#             return abort(401)  # Authorization required
+#         else:
+#             return function()
+#
+#     return wrapper
 
 
 @auth.route("/logan")
@@ -105,21 +104,16 @@ def callback():
         request=token_request,
         audience=GOOGLE_CLIENT_ID
     )
+
+    s = session.query(SignUp).filter(SignUp.emails == id_info["email"]).all()
+    if len(s) > 0:
+        flash("That email is already in use, please select a new one", category="error")
+        return redirect(url_for('auth.sign_up'))
+
     global globo
     globo = id_info
 
-    # trabaja con esto para que no repitas vaina
-    # r = session.query(SignUp).filter(SignUp.name == fname).all()
-    # s = session.query(SignUp).filter(SignUp.emails == enmail).all()
-
-    # huh = SignUp(
-    # session.add(huh)
-    # session.commit()
-    # print(session.query(SignUp).all())
-
-
     return redirect(url_for('auth.continues'))
-
 
 
 @auth.route("/lagout")
@@ -128,24 +122,34 @@ def lagout():
     return redirect("/")
 
 
-
-@auth.route("/protected_area")
-@login_is_required
-def protected_area():
-    return f"Hello {sa['name']}! <br/> <a href='/logout'><button>Logout</button></a>"
+# @auth.route("/protected_area")
+# @login_is_required
+# def protected_area():
+#     return f"Hello {sa['name']}! <br/> <a href='/logout'><button>Logout</button></a>"
 
 
 @auth.route("/continuing", methods=['POST', "GET"])
 def continues():
+    # NOW THERES MORE THING YOU GOTTA WORK ON WITH THE PICTURES........
+    # BUT FIRST!! MAKE SURE THERE IS NOTHING ELSE OAUTH ISN'T MISSING
+    if "family_name" in globo:
+        lname_is_missing = False
+    else:
+        lname_is_missing = True
+
+#
     if request.method == "POST":
         print(globo)
+        if lname_is_missing == False:
+            lname = globo["family_name"]
+        else:
+            lname = request.form.get("lname")
+
         chars = string.ascii_letters + string.digits + string.punctuation
         enmail = globo["email"]
         fname = globo["given_name"]
-        lname = globo["family_name"]
         password1 = ''.join(random.choice(chars) for i in range(20))
         phato = requests.get(globo["picture"])
-
 
         # ASEGURAE DE QUE CODIFIQUE LA VAINA BIEN
         photo = base64.b64encode(phato.content).decode('utf-8')
@@ -156,9 +160,12 @@ def continues():
         session.add(huh)
         session.commit()
         print(session.query(SignUp).all())
-        return redirect(url_for('auth.login'))
 
-    return render_template("tranquilo.html")
+        global globo
+        globo = {}
+
+        return redirect(url_for('auth.login'))
+    return render_template("tranquilo.html", lname_status=lname_is_missing)
 
 
 @auth.route("/login", methods=['POST', "GET"])
@@ -166,7 +173,7 @@ def login():
     if request.method == "POST":
         lo_password = str(request.form.get("password"))
         lo_email = str(request.form.get("email")).lower()
-        ema =  session.query(SignUp).filter_by(emails=lo_email).all()
+        ema = session.query(SignUp).filter_by(emails=lo_email).all()
         passo = session.query(SignUp).filter_by(password=lo_password).all()
 
         print(len(ema))
@@ -225,7 +232,6 @@ def sign_up():
         print(session.query(SignUp).all())
         print("huh?")
 
-
         r = session.query(SignUp).filter(SignUp.name == fname).all()
         s = session.query(SignUp).filter(SignUp.emails == enmail).all()
 
@@ -265,4 +271,3 @@ def sign_up():
         print(fname)
         print(email)
     return render_template("sign-up.html", image_data=encoded_image, y=years)
-

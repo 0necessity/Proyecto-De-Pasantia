@@ -1,9 +1,16 @@
 {% extends "house.html" %} {% block title %}Sign Up{% endblock %}
 
 {% block cont %}
-
+<!-- CHANGE THIS <STYLE> TO THE STATIC DIRECTORY LATER -->
+<style>
+  #forum {
+    border-bottom: 1px solid black;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+  }
+</style>
 <img src="data:image/png;base64,{{ image_data }}" />  -->
-<form method="POST" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data" ID="forum">
   <h3 align="center">Sign Up</h3>
   <div class="form-group">
     <label for="email">Email Address</label>
@@ -119,4 +126,6 @@
   <br />
   <button type="submit" value="Upload" class="btn btn-primary">Submit</button>
 </form>
+<p>Or sign up using your <a href="http://127.0.0.1:5000/logan">Google Account</a></p>
+
 {% endblock %}
