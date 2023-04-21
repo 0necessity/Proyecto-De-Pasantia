@@ -1,7 +1,35 @@
-from flask import Blueprint, render_template
+import base64
 
+from flask import *  # fix this later
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from .auth import SignUp
+
+engine = create_engine("sqlite:///mydb.db", echo=True)
+Session = sessionmaker(bind=engine)
+session = Session()
 views = Blueprint("views", __name__)
+
+
+def log_check():
+    cookie = request.cookies
+    user_cookie = cookie.get("user")
+    menu_items = []
+
+    if user_cookie is not None:
+        user = session.query(SignUp).filter_by(cookieid=user_cookie).first()
+        if user is not None:
+            encoded_image = base64.b64encode(user.photo).decode('utf-8')
+            menu_items = [
+                f'<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>',
+                f'<a href="/profile"><div><p><span style="color: white;">{user.name}</span></p> <img src="data:image/jpeg;base64,{encoded_image}" class="rounded-circle me-2 ms-auto"></div></a>'
+            ]
+    return menu_items
+
 
 @views.route('/', methods=['GET', 'POST'])
 def home():
-    return render_template("front.html")
+
+    # s = session.query(SignUp).filter(SignUp.emails == "luisjaviercg9@gmail.com").first()
+    res = make_response(render_template("front.html", code=log_check()))
+    return res

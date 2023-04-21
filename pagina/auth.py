@@ -22,17 +22,27 @@ import random
 import string
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # to allow Http traffic for local dev
-
 GOOGLE_CLIENT_ID = "767012225869-o403codh716ib53pnug7pdhpmnqs7mid.apps.googleusercontent.com"
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 
 auth = Blueprint("auth", __name__)
 Base = declarative_base()
 
-# KNOW PROBLEM THAT I MAY OR MAY NOT FIX IN THE FUTURE:
-# THE COOKIES ARE SET TO IDs OF THE ENTRYS IN THE DATABASE THAT
-# ARE ORGANIZED WITH AUTO-INCREMENT MAKING IT SO ANYONE CAN JUST INJECT THEIR COOKIE AN ACCESS THE PROFILE OF SOMEONE
+def log_check():
+    cookie = request.cookies
+    user_cookie = cookie.get("user")
+    menu_items = []
 
+    if user_cookie is not None:
+        user = session.query(SignUp).filter_by(cookieid=user_cookie).first()
+        if user is not None:
+            encoded_image = base64.b64encode(user.photo).decode('utf-8')
+            # FIX THE WEIRD ALIGNMENT ISSUE
+            menu_items = [
+                f'<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>',
+                f'<p><span style="color: white;">{user.name}</span></p> <img src="data:image/jpeg;base64,{encoded_image}" class="rounded-circle me-2 ms-auto">'
+            ]
+    return menu_items
 
 class SignUp(Base):
     try:
@@ -56,7 +66,7 @@ class SignUp(Base):
         self.password = password
         self.photo = photo
         self.cookieid = cookieid
-    def __repr__(self):
+    def __str__(self):
         return f"{self.name} {self.emails} {self.role} {self.lastname} {self.password} {self.photo} {self.cookieid} {self.id}"
 
 
@@ -67,23 +77,13 @@ session = Session()
 
 flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
-    scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email",
+    scopes=["https://www.googleapis.com/auth/userinfo.profile",
+            "https://www.googleapis.com/auth/userinfo.email",
             "openid"],
     redirect_uri="http://127.0.0.1:5000/callback"
 )
 
 globo = {}
-
-
-
-# def login_is_required(function):
-#     def wrapper(*args, **kwargs):
-#         if "google_id" not in sa:
-#             return abort(401)  # Authorization required
-#         else:
-#             return function()
-#
-#     return wrapper
 
 
 @auth.route("/logan")
@@ -92,6 +92,9 @@ def logan():
     sa["state"] = state
     return redirect(authorization_url)
 
+@auth.route("/profile")
+def profile():
+    return "Hello >:D"
 
 @auth.route("/callback")
 def callback():
@@ -117,37 +120,23 @@ def callback():
         res = make_response(redirect(url_for('views.home')))
         cookie = request.cookies
         stat = cookie.get("user")
-        print(s)
-        print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
-        print(len(s))
-        try:
-            print(s[7])
-        except:
-            pass
 
-        print(stat)
+        print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+
         if stat is None:
-            print(s)
             # need to make a query here:
-            res.set_cookie("user", id_info["given_name"], 600)
+            ras = session.query(SignUp.cookieid).filter(SignUp.emails == id_info["email"].lower()).first()
+            cookieid = ras[0] if ras else None
+            cookieid_str = str(cookieid) if cookieid else None
+            res.set_cookie("user", cookieid_str, 600)
+
+
         return res
 
     global globo
     globo = id_info
 
     return redirect(url_for('auth.continues'))
-
-
-# @auth.route("/lagout")
-# def lagout():
-#     sa.clear()
-#     return redirect("/")
-
-
-# @auth.route("/protected_area")
-# @login_is_required
-# def protected_area():
-#     return f"Hello {sa['name']}! <br/> <a href='/logout'><button>Logout</button></a>"
 
 
 @auth.route("/continuing", methods=['POST', "GET"])
@@ -160,7 +149,7 @@ def continues():
 #
     if request.method == "POST":
         print(globo)
-        if lname_is_missing == False:
+        if not lname_is_missing:
             lname = globo["family_name"]
         else:
             lname = request.form.get("lname")
@@ -175,7 +164,7 @@ def continues():
                 photo = image_file.read()
 
         chars = string.ascii_letters + string.digits + string.punctuation
-        enmail = globo["email"]
+        enmail = globo["email"].lower()
         fname = globo["given_name"]
         password1 = ''.join(random.choice(chars) for i in range(20))
         role = request.form.get("role")
@@ -188,11 +177,9 @@ def continues():
         print(session.query(SignUp).all())
 
         res = make_response(redirect(url_for('auth.login')))
-        # cHANGE IT so it sets id instead of name
         res.set_cookie("user", cookieID, 600)
-        # HERES WHERE YOU ARE GONNA SET THE COOKIE
         return res
-    return render_template("tranquilo.html", lname_status=lname_is_missing)
+    return render_template("tranquilo.html", lname_status=lname_is_missing, code=log_check())
 
 
 @auth.route("/login", methods=['POST', "GET"])
@@ -214,24 +201,32 @@ def login():
             if len(ema) < 1:
                 flash("Wrong email", category="error")
             if len(ema) == 1 and len(passo) == 1:
-                # HERES WHERE YOU ARE GONNA GET THE COOKIE
-                res = make_response(redirect(url_for('views.home')))
-                cookie = request.cookies
-                stat = cookie.get("user")
-                print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
-                print(stat)
-                if stat is None:
-                    #this dosent work, really work with IDs
-                    #res.set_cookie("user", id_info["given_name"], 600)
-                    pass
-                return res
+                ebail = session.query(SignUp.password).filter(SignUp.emails == lo_email).first()
+                passw = ebail[0] if ebail else None
+                srt_of_qpass = str(passw) if passw else None
 
-    return render_template("login.html", coco=23)
+                if lo_password == srt_of_qpass:
+                    res = make_response(redirect(url_for('views.home')))
+                    cookie = request.cookies
+                    stat = cookie.get("user")
+
+                    if stat is None:
+                        ras = session.query(SignUp.cookieid).filter(SignUp.emails == lo_email).first()
+                        cookieid = ras[0] if ras else None
+                        cookieid_str = str(cookieid) if cookieid else None
+                        res.set_cookie("user", cookieid_str, 600)
+                    return res
+                else:
+                    flash("Wrong password", category="error")
+
+    return render_template("login.html", code=log_check())
 
 
 @auth.route("/logout")
 def logout():
-    return ">:D"
+    res = make_response(redirect(url_for('views.home')))
+    res.set_cookie("user", value="", expires=0)
+    return res
 
 
 @auth.route("/sign_up", methods=['POST', "GET"])
@@ -315,4 +310,4 @@ def sign_up():
         print(len(photo))
         print(fname)
         print(email)
-    return render_template("sign-up.html", image_data=encoded_image, y=years)
+    return render_template("sign-up.html", image_data=encoded_image, y=years, code=log_check())

@@ -1,5 +1,7 @@
-
 {% extends "house.html" %}
+{% block log %}{{code[0]|safe}}{% endblock %}
+{% block pfp %}{{code[1]|safe}}{% endblock %}
+
 {% block cont %}
 <form method="POST">
   <div class="form-group">
