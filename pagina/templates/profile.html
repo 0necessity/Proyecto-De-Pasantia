@@ -1,23 +1,16 @@
-{% extends "house.html" %} {% block title %}Sign Up{% endblock %}
+{% extends "house.html" %} {% block title %}Change{% endblock %}
 {% block log %}{{code[0]|safe}}{% endblock %}
 {% block pfp %}{{code[1]|safe}}{% endblock %}
 
 
 {% block cont %}
-<!-- CHANGE THIS <STYLE> TO THE STATIC DIRECTORY LATER -->
-
-<style>
-#forum {
-  border-bottom: 1px solid black;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-}
-</style>
+<div id="oh_my_gah">
+<img src="https://us-tuna-sounds-images.voicemod.net/1d73344b-4042-4810-8896-24c8a5fcaa1a-1662141553717.png">
 <form method="POST" enctype="multipart/form-data" ID="forum">
-  <h3 align="center">Sign Up</h3>
   <div class="form-group">
     <label for="email">Email Address</label>
     <input
+      value="{{user.emails}}"
       type="email"
       class="form-control"
       id="email"
@@ -28,6 +21,7 @@
   <div class="form-group">
     <label for="firstName">First Name</label>
     <input
+      value="{{user.name}}"
       type="text"
       class="form-control"
       id="firstName"
@@ -38,6 +32,7 @@
   <div class="form-group">
     <label for="lastName">Last Name</label>
     <input
+      value="{{user.lastname}}"
       type="text"
       class="form-control"
       id="lastName"
@@ -46,26 +41,28 @@
     />
   </div>
 
-  <div class="form-group">
+  <div class="form-group" id="pasi">
     <label for="password1">Password</label>
     <input
+      value="{{user.password}}"
       type="password"
       class="form-control"
       id="password1"
       name="password1"
       placeholder="Enter password"
     />
+<button type="button" id="show-password">Show</button>
+<script>
+  const passwordInput = document.getElementById('password1');
+  const showPasswordButton = document.getElementById('show-password');
+
+  showPasswordButton.addEventListener('click', function(event) {
+    event.preventDefault();
+    passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+  });
+</script>
   </div>
-  <div class="form-group">
-    <label for="password2">Password (Confirm)</label>
-    <input
-      type="password"
-      class="form-control"
-      id="password2"
-      name="password2"
-      placeholder="Confirm password"
-    />
-  </div>
+
   <div class="form-group">
     <label for="picture">Take a picture of your face:</label>
         <input type="file" name="image" id="image" onchange="previewImage(event)">
@@ -86,37 +83,6 @@
     </style>
   </div>
 
-  <div>
-    <label for="day">Day:</label>
-    <select id="day" name="day">
-        {% for day in range(1, 32) %}
-            <option value="{{day}}">{{day}}</option>
-        {% endfor %}
-    </select>
-    <label for="month">Month:</label>
-    <select id="month" name="month">
-        <option value="1">January</option>
-        <option value="2">February</option>
-        <option value="3">March</option>
-        <option value="4">April</option>
-        <option value="5">May</option>
-        <option value="6">June</option>
-        <option value="7">July</option>
-        <option value="8">August</option>
-        <option value="9">September</option>
-        <option value="10">October</option>
-        <option value="11">November</option>
-        <option value="12">December</option>
-    </select>
-    <label for="year">Year:</label>
-    <select id="year" name="year">
-        {% for year in y %}
-            <option value="{{year}}">{{year}}</option>
-        {% endfor %}
-    </select>
-
-  </div>
-
   <div class="form-group">
     <label for="role">Role (I suppose?)</label>
      <select id="role" name="role">
@@ -129,6 +95,6 @@
   <br />
   <button type="submit" value="Upload" class="btn btn-primary">Submit</button>
 </form>
-<p>Or sign up using your <a href="http://127.0.0.1:5000/logan">Google Account</a></p>
+</div>
 
 {% endblock %}

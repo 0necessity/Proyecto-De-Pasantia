@@ -1,0 +1,39 @@
+
+.link {
+    display: flex;
+    align-items: center;
+}
+
+.link p{
+     margin-right: 10px;
+}
+
+.link img {
+    height: 60px; /* set the max-height of the image to 100% of the parent container */
+}
+
+#oh_my_gah img {
+  width: 150px;
+  height: 150px;
+  flex-shrink: 0;
+}
+#oh_my_gah input {
+  flex-grow: 1;
+  margin-left: 10px;
+}
+
+#oh_my_gah form {
+      flex-wrap: wrap;
+}
+#pasi {
+    display: inline-flex;
+    align-items: center;
+}
+#pasi button {
+    margin: 0.5rem;
+}
+
+#oh_my_gah {
+  display: flex;
+  flex-wrap: wrap;
+}

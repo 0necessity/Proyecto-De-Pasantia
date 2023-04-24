@@ -2,6 +2,8 @@ import base64
 import datetime
 import email.charset
 import os
+import html
+
 import pathlib
 import re
 from flask import Blueprint, render_template, flash, url_for
@@ -28,6 +30,7 @@ client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret
 auth = Blueprint("auth", __name__)
 Base = declarative_base()
 
+
 def log_check():
     cookie = request.cookies
     user_cookie = cookie.get("user")
@@ -37,12 +40,19 @@ def log_check():
         user = session.query(SignUp).filter_by(cookieid=user_cookie).first()
         if user is not None:
             encoded_image = base64.b64encode(user.photo).decode('utf-8')
-            # FIX THE WEIRD ALIGNMENT ISSUE
+            named = html.escape(user.name)
             menu_items = [
                 f'<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>',
-                f'<p><span style="color: white;">{user.name}</span></p> <img src="data:image/jpeg;base64,{encoded_image}" class="rounded-circle me-2 ms-auto">'
+                f"""
+                <link rel="stylesheet" href="../static/please.css">
+                <a href="/profile" class="link">
+                    <p><span style="color: white;">Hola, {named}</span></p>
+                    <img src="data:image/png;base64,{encoded_image}" class="rounded-circle me-2 ms-auto">
+                </a>
+                """
             ]
     return menu_items
+
 
 class SignUp(Base):
     try:
@@ -66,6 +76,7 @@ class SignUp(Base):
         self.password = password
         self.photo = photo
         self.cookieid = cookieid
+
     def __str__(self):
         return f"{self.name} {self.emails} {self.role} {self.lastname} {self.password} {self.photo} {self.cookieid} {self.id}"
 
@@ -92,9 +103,61 @@ def logan():
     sa["state"] = state
     return redirect(authorization_url)
 
-@auth.route("/profile")
+
+@auth.route("/profile", methods=['POST', "GET"])
 def profile():
-    return "Hello >:D"
+    cookie = request.cookies
+    user_cookie = cookie.get("user")
+    user = session.query(SignUp).filter_by(cookieid=user_cookie).first()
+    if request.method == "POST":
+        if user_cookie is not None:
+            enmail = str(request.form.get("email")).lower()
+            fname = str(request.form.get("firstName"))
+            lname = str(request.form.get("lastName"))
+            password1 = str(request.form.get("password1"))
+            photo = request.files["image"].read()
+            role = request.form.get("role")
+            encoded_image = base64.b64encode(photo).decode('utf-8')
+            pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            match = re.match(pattern, str(request.form.get("email")))
+
+            r = session.query(SignUp).filter_by(name=fname).first()
+
+            s = session.query(SignUp).filter_by(emails=enmail).first()
+
+            if 0 < len(enmail) and match is None:
+                flash("Enter a valid email", category="error")
+            elif 0 < len(fname) < 3:
+                flash("Your first name need to be larger", category="error")
+            elif 0 < len(lname) < 3:
+                flash("Your last name need to be larger", category="error")
+            elif 0 < len(password1) < 9:
+                flash("Your password need to be larger", category="error")
+            elif r is not None and fname != user.name:
+                flash("That name is already in use, please select a new one", category="error")
+            elif s is not None and enmail != user.emails:
+                flash("That email is already in use, please select a new one", category="error")
+            elif len(photo) > 5000000:
+                flash("The size of your profile picture is too big. Please select an smaller one", category="error")
+            elif len(photo) != 0 and not any(
+                    pattern in photo[:4] for pattern in [b'\xff\xd8\xff\xe0', b'\xff\xd8\xff\xe1', b'\x89PNG']):
+                flash("This type of files is not supported, please make sure to upload a PNG or JPEG file",
+                      category="error")
+            else:
+                if len(fname) != 0:
+                    user.name = fname
+                if len(enmail) != 0:
+                    user.emails = enmail
+                if len(lname) != 0:
+                    user.lastname = lname
+                if len(password1) != 0:
+                    user.password = password1
+                if len(photo) >= 5:
+                    user.photo = photo
+                user.role = role
+                session.commit()
+    return render_template("profile.html", code=log_check(), user=user)
+
 
 @auth.route("/callback")
 def callback():
@@ -130,23 +193,24 @@ def callback():
             cookieid_str = str(cookieid) if cookieid else None
             res.set_cookie("user", cookieid_str, 600)
 
-
         return res
 
     global globo
     globo = id_info
 
     return redirect(url_for('auth.continues'))
-
+# cgc > 2 --> False
+# cg > 2 --> True
 
 @auth.route("/continuing", methods=['POST', "GET"])
 def continues():
+
     if "family_name" in globo:
         lname_is_missing = False
     else:
         lname_is_missing = True
 
-#
+    #
     if request.method == "POST":
         print(globo)
         if not lname_is_missing:
@@ -292,8 +356,7 @@ def sign_up():
                 with open(image_path, 'rb') as image_file:
                     photo = image_file.read()
 
-
-            #YOU PROB SHOULD MAKE THIS INTO A FUNCTION
+            # YOU PROB SHOULD MAKE THIS INTO A FUNCTION
             chars = string.ascii_letters + string.digits + string.punctuation
             cookieID = ''.join(random.choice(chars) for i in range(30))
 
