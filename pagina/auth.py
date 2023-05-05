@@ -3,7 +3,9 @@ import datetime
 import email.charset
 import os
 import html
-
+from pagina import create_app
+import jwt
+from datetime import datetime, timedelta
 import pathlib
 import re
 from flask import Blueprint, render_template, flash, url_for
@@ -27,20 +29,29 @@ os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # to allow Http traffic for loc
 GOOGLE_CLIENT_ID = "767012225869-o403codh716ib53pnug7pdhpmnqs7mid.apps.googleusercontent.com"
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 
+
 auth = Blueprint("auth", __name__)
 Base = declarative_base()
 
+def deco(token):
+    try:
+        apli = create_app()
+        payload = jwt.decode(token, apli.config['SECRET_KEY'], algorithms=['HS256'])
+        return payload
+    except jwt.exceptions.DecodeError:
+        return {}
 
 def log_check():
     cookie = request.cookies
     user_cookie = cookie.get("user")
     menu_items = []
-
     if user_cookie is not None:
-        user = session.query(SignUp).filter_by(cookieid=user_cookie).first()
+        user = deco(user_cookie)
         if user is not None:
-            encoded_image = base64.b64encode(user.photo).decode('utf-8')
-            named = html.escape(user.name)
+            pic_query = session.query(SignUp.photo).filter_by(name=user["name"]).first()
+            encoded_image = base64.b64encode(pic_query[0] if pic_query else None).decode('utf-8')
+
+            named = html.escape(user["name"])
             menu_items = [
                 f'<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>',
                 f"""
@@ -55,6 +66,7 @@ def log_check():
 
 
 class SignUp(Base):
+
     try:
         __tablename__ = "sign-up"
         name = Column("name", String, unique=True)
@@ -63,22 +75,20 @@ class SignUp(Base):
         lastname = Column("lastname", String)
         password = Column("password", String)
         photo = Column("photo", String)
-        cookieid = Column("cookieid", String)
         id = Column(Integer, primary_key=True, autoincrement=True)
     except:
         pass
 
-    def __init__(self, name, emails, role, lastname, password, photo, cookieid):
+    def __init__(self, name, emails, role, lastname, password, photo):
         self.name = name
         self.emails = emails
         self.role = role
         self.lastname = lastname
         self.password = password
         self.photo = photo
-        self.cookieid = cookieid
 
     def __str__(self):
-        return f"{self.name} {self.emails} {self.role} {self.lastname} {self.password} {self.photo} {self.cookieid} {self.id}"
+        return f"{self.name} {self.emails} {self.role} {self.lastname} {self.password} {self.photo} {self.id}"
 
 
 engine = create_engine("sqlite:///mydb.db", echo=True)
@@ -108,9 +118,16 @@ def logan():
 def profile():
     cookie = request.cookies
     user_cookie = cookie.get("user")
-    user = session.query(SignUp).filter_by(cookieid=user_cookie).first()
+
+    if user_cookie:
+        usuario = deco(user_cookie)
+        user = session.query(SignUp).filter_by(name=usuario["name"]).first()
+    else:
+        user = []
+
     if request.method == "POST":
         if user_cookie is not None:
+
             enmail = str(request.form.get("email")).lower()
             fname = str(request.form.get("firstName"))
             lname = str(request.form.get("lastName"))
@@ -120,7 +137,7 @@ def profile():
             encoded_image = base64.b64encode(photo).decode('utf-8')
             pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
             match = re.match(pattern, str(request.form.get("email")))
-
+            #EIQUIUMI????
             r = session.query(SignUp).filter_by(name=fname).first()
 
             s = session.query(SignUp).filter_by(emails=enmail).first()
@@ -144,18 +161,42 @@ def profile():
                 flash("This type of files is not supported, please make sure to upload a PNG or JPEG file",
                       category="error")
             else:
-                if len(fname) != 0:
-                    user.name = fname
-                if len(enmail) != 0:
-                    user.emails = enmail
-                if len(lname) != 0:
-                    user.lastname = lname
-                if len(password1) != 0:
-                    user.password = password1
-                if len(photo) >= 5:
-                    user.photo = photo
-                user.role = role
-                session.commit()
+                try:
+                    if len(fname) != 0:
+                        user.name = fname
+                    if len(enmail) != 0:
+                        user.emails = enmail
+                    if len(lname) != 0:
+                        user.lastname = lname
+                    if len(password1) != 0:
+                        user.password = password1
+                    if len(photo) >= 5:
+                        user.photo = photo
+                    user.role = role
+                    session.commit()
+                    apli = create_app()
+
+                    token = jwt.encode({
+                        'name': fname,
+                        "emails": enmail,
+                        "role": role,
+                        "lastname": lname,
+                        "password": password1,
+                        'expiration': str(datetime.utcnow() + timedelta(seconds=1))
+                    },
+                        apli.config['SECRET_KEY'])
+
+                    res = make_response(redirect(url_for('auth.profile')))
+
+                    res.set_cookie('user', token, 1)
+                    return res
+
+                except jwt.ExpiredSignatureError:
+                    print("Expired signature error occurred")
+                except jwt.InvalidTokenError:
+                    print("Invalid token error occurred")
+
+
     return render_template("profile.html", code=log_check(), user=user)
 
 
@@ -179,19 +220,27 @@ def callback():
 
     s = session.query(SignUp).filter(SignUp.emails == id_info["email"]).all()
     if len(s) > 0:
-        # HERES WHERE YOU ARE GONNA GET THE COOKIE
         res = make_response(redirect(url_for('views.home')))
         cookie = request.cookies
         stat = cookie.get("user")
 
-        print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
-
         if stat is None:
-            # need to make a query here:
-            ras = session.query(SignUp.cookieid).filter(SignUp.emails == id_info["email"].lower()).first()
-            cookieid = ras[0] if ras else None
-            cookieid_str = str(cookieid) if cookieid else None
-            res.set_cookie("user", cookieid_str, 600)
+            for ss in s:
+                apli = create_app()
+
+                token = jwt.encode({
+                    'name': ss.name,
+                    "emails": ss.emails,
+                    "role": ss.role,
+                    "lastname": ss.lastname,
+                    "password": ss.password,
+                    'expiration': str(datetime.utcnow() + timedelta(seconds=6000))
+                },
+                    apli.config['SECRET_KEY'])
+
+                res.set_cookie('user', token, 6000)
+
+
 
         return res
 
@@ -199,91 +248,97 @@ def callback():
     globo = id_info
 
     return redirect(url_for('auth.continues'))
-# cgc > 2 --> False
-# cg > 2 --> True
 
 @auth.route("/continuing", methods=['POST', "GET"])
 def continues():
-
-    if "family_name" in globo:
-        lname_is_missing = False
-    else:
+    if "family_name" in globo and len(globo["family_name"]) < 3:
         lname_is_missing = True
+    else:
+        lname_is_missing = "family_name" not in globo
 
-    #
     if request.method == "POST":
-        print(globo)
+        lname = request.form.get("lastName")
         if not lname_is_missing:
-            lname = globo["family_name"]
-        else:
-            lname = request.form.get("lname")
-
+            lname = globo.get("family_name", "")
+        photo = None
         if "picture" in globo:
-            print(globo["picture"])
-            print(requests.get(globo["picture"]))
-            photo = requests.get(globo["picture"]).content
+            photo_response = requests.get(globo["picture"])
+            if photo_response.status_code == 200:
+                photo = photo_response.content
+        if not len(lname) > 2:
+            flash("Your last name needs to be longer", category="error")
         else:
-            image_path = os.path.join(os.getcwd(), 'pagina', 'static', "default.jpg")
-            with open(image_path, 'rb') as image_file:
-                photo = image_file.read()
+            email = globo["email"].lower()
+            fname = globo["given_name"]
+            password1 = ''.join(
+                random.choice(string.ascii_letters + string.digits + string.punctuation) for i in range(20))
+            role = request.form.get("role")
 
-        chars = string.ascii_letters + string.digits + string.punctuation
-        enmail = globo["email"].lower()
-        fname = globo["given_name"]
-        password1 = ''.join(random.choice(chars) for i in range(20))
-        role = request.form.get("role")
-        chars = string.ascii_letters + string.digits + string.punctuation
-        cookieID = ''.join(random.choice(chars) for i in range(30))
+            new_signup = SignUp(fname, email, role, lname, password1, photo)
+            session.add(new_signup)
+            session.commit()
 
-        huh = SignUp(fname, enmail, role, lname, password1, photo, cookieID)
-        session.add(huh)
-        session.commit()
-        print(session.query(SignUp).all())
+            res = make_response(redirect(url_for('auth.login')))
+            apli = create_app()
 
-        res = make_response(redirect(url_for('auth.login')))
-        res.set_cookie("user", cookieID, 600)
-        return res
+            token = jwt.encode({
+                'name': fname,
+                "emails": email,
+                "role": role,
+                "lastname": lname,
+                "password": password1,
+                'expiration': str(datetime.utcnow() + timedelta(seconds=6000))
+            },
+                apli.config['SECRET_KEY'])
+
+            res.set_cookie('user', token, 6000)
+            return res
+
     return render_template("tranquilo.html", lname_status=lname_is_missing, code=log_check())
 
 
-@auth.route("/login", methods=['POST', "GET"])
+@auth.route("/login", methods=['POST', 'GET'])
 def login():
     if request.method == "POST":
-        lo_password = str(request.form.get("password"))
-        lo_email = str(request.form.get("email")).lower()
-        ema = session.query(SignUp).filter_by(emails=lo_email).all()
-        passo = session.query(SignUp).filter_by(password=lo_password).all()
-        # THERES A PROBLEM, THIS ONLY CHECK IF YOU PUT AN EMAIL THAT EXIST AND AN PASSWORD THAT EXIST
+        lo_password = request.form.get("password")
+        lo_email = request.form.get("email").lower()
 
-        if len(lo_email) < 1:
+        # Find user by email
+        user = session.query(SignUp).filter_by(emails=lo_email).first()
+
+        if not lo_email:
             flash("Please enter an email", category="error")
-        elif len(lo_password) < 1:
+        elif not lo_password:
             flash("Please enter a password", category="error")
+        elif not user:
+            flash("Wrong email", category="error")
+        elif user.password != lo_password:
+            flash("Wrong password", category="error")
         else:
-            if len(passo) < 1:
-                flash("Wrong password", category="error")
-            if len(ema) < 1:
-                flash("Wrong email", category="error")
-            if len(ema) == 1 and len(passo) == 1:
-                ebail = session.query(SignUp.password).filter(SignUp.emails == lo_email).first()
-                passw = ebail[0] if ebail else None
-                srt_of_qpass = str(passw) if passw else None
+            # Login successful, set cookie and redirect
+            res = make_response(redirect(url_for('views.home')))
+            cookie = request.cookies
+            stat = cookie.get("user")
 
-                if lo_password == srt_of_qpass:
-                    res = make_response(redirect(url_for('views.home')))
-                    cookie = request.cookies
-                    stat = cookie.get("user")
+            if stat is None:
+                apli = create_app()
 
-                    if stat is None:
-                        ras = session.query(SignUp.cookieid).filter(SignUp.emails == lo_email).first()
-                        cookieid = ras[0] if ras else None
-                        cookieid_str = str(cookieid) if cookieid else None
-                        res.set_cookie("user", cookieid_str, 600)
-                    return res
-                else:
-                    flash("Wrong password", category="error")
+                token = jwt.encode({
+                    'name': user.name,
+                    "emails": user.emails,
+                    "role": user.role,
+                    "lastname": user.lastname,
+                    "password": user.password,
+                    'expiration': str(datetime.utcnow() + timedelta(seconds=6000))
+                },
+                    apli.config['SECRET_KEY'])
+
+                res.set_cookie('user', token, 6000)
+                return res
+            return res
 
     return render_template("login.html", code=log_check())
+
 
 
 @auth.route("/logout")
@@ -358,16 +413,12 @@ def sign_up():
 
             # YOU PROB SHOULD MAKE THIS INTO A FUNCTION
             chars = string.ascii_letters + string.digits + string.punctuation
-            cookieID = ''.join(random.choice(chars) for i in range(30))
 
-            huh = SignUp(fname, enmail, role, lname, password1, photo, cookieID)
+            huh = SignUp(fname, enmail, role, lname, password1, photo)
             session.add(huh)
             session.commit()
             print(session.query(SignUp).all())
-            # HERES WHERE YOU ARE GONNA SET THE COOKIE
             res = make_response(redirect(url_for('auth.login')))
-            # cHANGE IT so it sets id instead of name
-            res.set_cookie("user", cookieID, 600)
             return res
 
         print(len(photo))

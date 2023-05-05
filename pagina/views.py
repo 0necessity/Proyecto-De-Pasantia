@@ -4,6 +4,9 @@ from flask import *  # fix this later
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from .auth import SignUp
+from pagina import create_app
+import jwt
+from datetime import datetime, timedelta
 
 engine = create_engine("sqlite:///mydb.db", echo=True)
 Session = sessionmaker(bind=engine)
@@ -11,17 +14,31 @@ session = Session()
 views = Blueprint("views", __name__)
 
 
+def deco(token):
+    apli = create_app()
+    payload = jwt.decode(token, apli.config['SECRET_KEY'], algorithms=['HS256'])
+    return payload
+
+
 def log_check():
-    cookie = request.cookies
-    user_cookie = cookie.get("user")
-    menu_items = []
+    try:
+        cookie = request.cookies
+        user_cookie = cookie.get("user")
+        menu_items = []
+    except jwt.exceptions.DecodeError:
+        return {}
 
     if user_cookie is not None:
-        user = session.query(SignUp).filter_by(cookieid=user_cookie).first()
+        user = deco(user_cookie)
         if user is not None:
-            encoded_image = base64.b64encode(user.photo).decode('utf-8')
-            named = html.escape(user.name)
+            pic_query = session.query(SignUp.photo).filter_by(name=user["name"]).first()
 
+
+
+
+
+            encoded_image = base64.b64encode(pic_query[0] if pic_query else None).decode('utf-8')
+            named = html.escape(user["name"])
             menu_items = [
                 f'<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>',
                 f"""

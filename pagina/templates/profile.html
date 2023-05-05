@@ -5,7 +5,7 @@
 
 {% block cont %}
 <div id="oh_my_gah">
-<img src="https://us-tuna-sounds-images.voicemod.net/1d73344b-4042-4810-8896-24c8a5fcaa1a-1662141553717.png">
+<img src="https://www.murrayglass.com/wp-content/uploads/2020/10/avatar-2048x2048.jpeg">
 <form method="POST" enctype="multipart/form-data" ID="forum">
   <div class="form-group">
     <label for="email">Email Address</label>
@@ -85,12 +85,15 @@
 
   <div class="form-group">
     <label for="role">Role (I suppose?)</label>
-     <select id="role" name="role">
-        <option value="admin">Administrador</option>
-        <option value="Editor">Editor</option>
-        <option value="Administrador de inventario">Administrador de inventario</option>
-        <option value="Supervisor">Supervisor</option>
-     </select>
+      <select id="role" name="role">
+        {% for role in ["admin", "Editor", "Administrador de inventario", "Supervisor"] %}
+          {% if role == user.role %}
+            <option value="{{ role }}" selected>{{ role }}</option>
+          {% else %}
+            <option value="{{ role }}">{{ role }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
   </div>
   <br />
   <button type="submit" value="Upload" class="btn btn-primary">Submit</button>
@@ -98,3 +101,5 @@
 </div>
 
 {% endblock %}
+
+
