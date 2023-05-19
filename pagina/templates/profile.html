@@ -10,7 +10,7 @@
   <div class="form-group">
     <label for="email">Email Address</label>
     <input
-      value="{{user.emails}}"
+      value="{{user[0][1]}}"
       type="email"
       class="form-control"
       id="email"
@@ -21,7 +21,7 @@
   <div class="form-group">
     <label for="firstName">First Name</label>
     <input
-      value="{{user.name}}"
+      value="{{user[0][0]}}"
       type="text"
       class="form-control"
       id="firstName"
@@ -32,7 +32,7 @@
   <div class="form-group">
     <label for="lastName">Last Name</label>
     <input
-      value="{{user.lastname}}"
+      value="{{user[0][3]}}"
       type="text"
       class="form-control"
       id="lastName"
@@ -44,7 +44,7 @@
   <div class="form-group" id="pasi">
     <label for="password1">Password</label>
     <input
-      value="{{user.password}}"
+      value="{{user[0][4]}}"
       type="password"
       class="form-control"
       id="password1"
@@ -87,7 +87,7 @@
     <label for="role">Role (I suppose?)</label>
       <select id="role" name="role">
         {% for role in ["admin", "Editor", "Administrador de inventario", "Supervisor"] %}
-          {% if role == user.role %}
+          {% if role == user[0][2] %}
             <option value="{{ role }}" selected>{{ role }}</option>
           {% else %}
             <option value="{{ role }}">{{ role }}</option>

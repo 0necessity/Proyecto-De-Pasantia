@@ -24,14 +24,15 @@ from pip._vendor import cachecontrol
 import google.auth.transport.requests
 import random
 import string
+import psycopg2
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # to allow Http traffic for local dev
 GOOGLE_CLIENT_ID = "767012225869-o403codh716ib53pnug7pdhpmnqs7mid.apps.googleusercontent.com"
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 
-
 auth = Blueprint("auth", __name__)
 Base = declarative_base()
+
 
 def deco(token):
     try:
@@ -41,6 +42,28 @@ def deco(token):
     except jwt.exceptions.DecodeError:
         return {}
 
+
+# The Uri to connect to PostGres Database
+connection = psycopg2.connect(
+    "postgres://csxmmwsv:2ySU--ymn0e_2TscHlD1C038WqJeTAZ6@drona.db.elephantsql.com/csxmmwsv"
+)
+try:
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+            CREATE TABLE Sign_Up (
+            fname TEXT,
+            emails TEXT,
+            rola TEXT,
+            lastname TEXT,
+            password TEXT,
+            photo BYTEA,
+            id SERIAL PRIMARY KEY
+            );""")
+except:
+    pass
+
+
 def log_check():
     cookie = request.cookies
     user_cookie = cookie.get("user")
@@ -48,8 +71,15 @@ def log_check():
     if user_cookie is not None:
         user = deco(user_cookie)
         if user is not None:
-            pic_query = session.query(SignUp.photo).filter_by(name=user["name"]).first()
-            encoded_image = base64.b64encode(pic_query[0] if pic_query else None).decode('utf-8')
+            with connection:
+                with connection.cursor() as cu:
+                    cu.execute("SELECT photo FROM sign_up WHERE fname = %s;", (user["name"],))
+                    pic_query = cu.fetchone()
+         # if pic_query is None:
+            #     pic_query = b""
+            # else:
+            #     pic_query = pic_query.encode('utf-8')
+            encoded_image = base64.b64encode(pic_query[0] if pic_query else b"").decode('utf-8')
 
             named = html.escape(user["name"])
             menu_items = [
@@ -65,36 +95,35 @@ def log_check():
     return menu_items
 
 
-class SignUp(Base):
+# class SignUp(Base):
+#     try:
+#         __tablename__ = "sign-up"
+#         name = Column("name", String, unique=True)
+#         emails = Column("emails", String, unique=True)
+#         role = Column("role", String)
+#         lastname = Column("lastname", String)
+#         password = Column("password", String)
+#         photo = Column("photo", String)
+#         id = Column(Integer, primary_key=True, autoincrement=True)
+#     except:
+#         pass
+#
+#     def __init__(self, name, emails, role, lastname, password, photo):
+#         self.name = name
+#         self.emails = emails
+#         self.role = role
+#         self.lastname = lastname
+#         self.password = password
+#         self.photo = photo
+#
+#     def __str__(self):
+#         return f"{self.name} {self.emails} {self.role} {self.lastname} {self.password} {self.photo} {self.id}"
 
-    try:
-        __tablename__ = "sign-up"
-        name = Column("name", String, unique=True)
-        emails = Column("emails", String, unique=True)
-        role = Column("role", String)
-        lastname = Column("lastname", String)
-        password = Column("password", String)
-        photo = Column("photo", String)
-        id = Column(Integer, primary_key=True, autoincrement=True)
-    except:
-        pass
 
-    def __init__(self, name, emails, role, lastname, password, photo):
-        self.name = name
-        self.emails = emails
-        self.role = role
-        self.lastname = lastname
-        self.password = password
-        self.photo = photo
-
-    def __str__(self):
-        return f"{self.name} {self.emails} {self.role} {self.lastname} {self.password} {self.photo} {self.id}"
-
-
-engine = create_engine("sqlite:///mydb.db", echo=True)
-Base.metadata.create_all(bind=engine)
-Session = sessionmaker(bind=engine)
-session = Session()
+# engine = create_engine("sqlite:///mydb.db", echo=True)
+# Base.metadata.create_all(bind=engine)
+# Session = sessionmaker(bind=engine)
+# session = Session()
 
 flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
@@ -107,6 +136,32 @@ flow = Flow.from_client_secrets_file(
 globo = {}
 
 
+####################################################################################################################
+####################################################################################################################
+####################################################################################################################
+# psy = psycopg2.connect(
+#     host="127.0.0.1",
+#     port=5000,
+#     user="postgres",
+#     password="1a22bb333ccc",
+#     database="proyecto-de-python")
+
+# With this ↓ you control psycopg2
+
+# cur = psy.cursor()
+#
+#
+# cur.execute("SELECT name, * FROM testo WHERE id = ARRAY[1, 2, 3];")
+#
+# result = cur.fetchall()
+# # psy.commit() # For anything that is changing
+#
+# print(type(result[0][0]))
+# print(result[0]) #Specific
+# print(result[1]) #Generic
+# # Close the cursor and database connection
+# cur.close(); psy.close()
+
 @auth.route("/logan")
 def logan():
     authorization_url, state = flow.authorization_url()
@@ -114,14 +169,25 @@ def logan():
     return redirect(authorization_url)
 
 
+# need to continue working in the SQL
 @auth.route("/profile", methods=['POST', "GET"])
 def profile():
     cookie = request.cookies
     user_cookie = cookie.get("user")
+    usuario = deco(user_cookie)
 
     if user_cookie:
-        usuario = deco(user_cookie)
-        user = session.query(SignUp).filter_by(name=usuario["name"]).first()
+        try:
+            with connection:
+                with connection.cursor() as cu:
+                    cu.execute("SELECT * FROM sign_up WHERE fname = %s;", (usuario["name"],))
+                    user = cu.fetchall()
+                    print(user)
+        except:
+            with connection.cursor() as cu:
+                cu.execute("SELECT * FROM sign_up WHERE fname = %s;", (usuario["name"],))
+                user = cu.fetchall()
+                print(user)
     else:
         user = []
 
@@ -137,10 +203,12 @@ def profile():
             encoded_image = base64.b64encode(photo).decode('utf-8')
             pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
             match = re.match(pattern, str(request.form.get("email")))
-            #EIQUIUMI????
-            r = session.query(SignUp).filter_by(name=fname).first()
-
-            s = session.query(SignUp).filter_by(emails=enmail).first()
+            with connection:
+                with connection.cursor() as cu:
+                    cu.execute("SELECT * FROM sign_up WHERE fname = %s;", (fname,))
+                    r = cu.fetchone()
+                    cu.execute("SELECT * FROM sign_up WHERE emails = %s;", (enmail,))
+                    s = cu.fetchone()
 
             if 0 < len(enmail) and match is None:
                 flash("Enter a valid email", category="error")
@@ -150,9 +218,9 @@ def profile():
                 flash("Your last name need to be larger", category="error")
             elif 0 < len(password1) < 9:
                 flash("Your password need to be larger", category="error")
-            elif r is not None and fname != user.name:
+            elif r is not None and fname != usuario["name"]:
                 flash("That name is already in use, please select a new one", category="error")
-            elif s is not None and enmail != user.emails:
+            elif s is not None and enmail != usuario["emails"]:
                 flash("That email is already in use, please select a new one", category="error")
             elif len(photo) > 5000000:
                 flash("The size of your profile picture is too big. Please select an smaller one", category="error")
@@ -162,19 +230,21 @@ def profile():
                       category="error")
             else:
                 try:
-                    if len(fname) != 0:
-                        user.name = fname
-                    if len(enmail) != 0:
-                        user.emails = enmail
-                    if len(lname) != 0:
-                        user.lastname = lname
-                    if len(password1) != 0:
-                        user.password = password1
-                    if len(photo) >= 5:
-                        user.photo = photo
-                    user.role = role
-                    session.commit()
+                    with connection:
+                        with connection.cursor() as cu:
+                            cu.execute("SELECT photo FROM sign_up WHERE fname = %s;", (usuario["name"],))
+                            actual_photo = cu.fetchall()
+                    PHOTO = psycopg2.Binary(photo) if len(photo) >= 5 else psycopg2.Binary(actual_photo[0][0])
+
                     apli = create_app()
+
+                    with connection:
+                        with connection.cursor() as cu:
+                            cu.execute("""
+                                UPDATE sign_up
+                                SET fname = %s, emails = %s, rola = %s, lastname = %s, password = %s, photo = %s
+                                WHERE fname = %s;
+                            """, (fname, enmail, role, lname, password1, PHOTO, usuario["name"]))
 
                     token = jwt.encode({
                         'name': fname,
@@ -182,20 +252,19 @@ def profile():
                         "role": role,
                         "lastname": lname,
                         "password": password1,
-                        'expiration': str(datetime.utcnow() + timedelta(seconds=1))
+                        'expiration': str(datetime.utcnow() + timedelta(seconds=6000))
                     },
                         apli.config['SECRET_KEY'])
 
                     res = make_response(redirect(url_for('auth.profile')))
-
-                    res.set_cookie('user', token, 1)
+                    res.delete_cookie("user")
+                    res.set_cookie('user', token, 6000)
                     return res
 
                 except jwt.ExpiredSignatureError:
                     print("Expired signature error occurred")
                 except jwt.InvalidTokenError:
                     print("Invalid token error occurred")
-
 
     return render_template("profile.html", code=log_check(), user=user)
 
@@ -218,29 +287,30 @@ def callback():
         audience=GOOGLE_CLIENT_ID
     )
 
-    s = session.query(SignUp).filter(SignUp.emails == id_info["email"]).all()
-    if len(s) > 0:
+    with connection:
+        with connection.cursor() as cu:
+            cu.execute("SELECT * FROM sign_up WHERE emails = %s;", (id_info["email"],))
+            s = cu.fetchone()
+
+    if s is not None:
         res = make_response(redirect(url_for('views.home')))
         cookie = request.cookies
         stat = cookie.get("user")
 
         if stat is None:
-            for ss in s:
-                apli = create_app()
+            apli = create_app()
 
-                token = jwt.encode({
-                    'name': ss.name,
-                    "emails": ss.emails,
-                    "role": ss.role,
-                    "lastname": ss.lastname,
-                    "password": ss.password,
-                    'expiration': str(datetime.utcnow() + timedelta(seconds=6000))
-                },
-                    apli.config['SECRET_KEY'])
+            token = jwt.encode({
+                'name': s[0],
+                "emails": s[1],
+                "role": s[2],
+                "lastname": s[3],
+                "password": s[4],
+                'expiration': str(datetime.utcnow() + timedelta(seconds=6000))
+            },
+                apli.config['SECRET_KEY'])
 
-                res.set_cookie('user', token, 6000)
-
-
+            res.set_cookie('user', token, 6000)
 
         return res
 
@@ -248,6 +318,7 @@ def callback():
     globo = id_info
 
     return redirect(url_for('auth.continues'))
+
 
 @auth.route("/continuing", methods=['POST', "GET"])
 def continues():
@@ -260,7 +331,7 @@ def continues():
         lname = request.form.get("lastName")
         if not lname_is_missing:
             lname = globo.get("family_name", "")
-        photo = None
+        photo = b""
         if "picture" in globo:
             photo_response = requests.get(globo["picture"])
             if photo_response.status_code == 200:
@@ -274,9 +345,10 @@ def continues():
                 random.choice(string.ascii_letters + string.digits + string.punctuation) for i in range(20))
             role = request.form.get("role")
 
-            new_signup = SignUp(fname, email, role, lname, password1, photo)
-            session.add(new_signup)
-            session.commit()
+            with connection:
+                with connection.cursor() as cu:
+                    cu.execute("INSERT INTO sign_up VALUES (%s, %s, %s, %s, %s, %s);", (
+                        fname, email, role, lname, password1, photo))
 
             res = make_response(redirect(url_for('auth.login')))
             apli = create_app()
@@ -304,7 +376,13 @@ def login():
         lo_email = request.form.get("email").lower()
 
         # Find user by email
-        user = session.query(SignUp).filter_by(emails=lo_email).first()
+        # user = session.query(SignUp).filter_by(emails=lo_email).first()
+
+        with connection:
+            with connection.cursor() as cu:
+                cu.execute("SELECT * FROM sign_up WHERE emails = %s;", (lo_email,))
+                user = cu.fetchone()
+                print(user)
 
         if not lo_email:
             flash("Please enter an email", category="error")
@@ -312,7 +390,7 @@ def login():
             flash("Please enter a password", category="error")
         elif not user:
             flash("Wrong email", category="error")
-        elif user.password != lo_password:
+        elif user[4] != lo_password:
             flash("Wrong password", category="error")
         else:
             # Login successful, set cookie and redirect
@@ -324,11 +402,11 @@ def login():
                 apli = create_app()
 
                 token = jwt.encode({
-                    'name': user.name,
-                    "emails": user.emails,
-                    "role": user.role,
-                    "lastname": user.lastname,
-                    "password": user.password,
+                    'name': user[0],
+                    "emails": user[1],
+                    "role": user[2],
+                    "lastname": user[3],
+                    "password": user[4],
                     'expiration': str(datetime.utcnow() + timedelta(seconds=6000))
                 },
                     apli.config['SECRET_KEY'])
@@ -336,9 +414,7 @@ def login():
                 res.set_cookie('user', token, 6000)
                 return res
             return res
-
     return render_template("login.html", code=log_check())
-
 
 
 @auth.route("/logout")
@@ -370,23 +446,30 @@ def sign_up():
         pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         match = re.match(pattern, str(request.form.get("email")))
         # ///////////////////////////
+        import datetime as dd
         day = int(request.form['day'])
         month = int(request.form['month'])
         year = int(request.form['year'])
-        dob = datetime.date(year, month, day)
-        today = datetime.date.today()
+        dob = dd.date(year, month, day)
+        today = dd.date.today()
         age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
         # ///////////////////////////
-        print(session.query(SignUp).all())
-        print("huh?")
+        # print(session.query(SignUp).all())
+        # print("huh?")
+        with connection:
+            with connection.cursor() as cu:
+                cu.execute("SELECT * FROM sign_up WHERE fname = %s;", (fname,))
+                r = cu.fetchone()
 
-        r = session.query(SignUp).filter(SignUp.name == fname).all()
-        s = session.query(SignUp).filter(SignUp.emails == enmail).all()
+        with connection:
+            with connection.cursor() as cu:
+                cu.execute("SELECT * FROM sign_up WHERE emails = %s;", (enmail,))
+                s = cu.fetchone()
 
-        print(password1)
-        if len(r) > 0:
+        # print(password1)
+        if r is not None:
             flash("That name is already in use, please select a new one", category="error")
-        elif len(s) > 0:
+        elif s is not None:
             flash("That email is already in use, please select a new one", category="error")
         elif age < 18:
             flash("You must be above 18 to enter", category="error")
@@ -412,12 +495,16 @@ def sign_up():
                     photo = image_file.read()
 
             # YOU PROB SHOULD MAKE THIS INTO A FUNCTION
-            chars = string.ascii_letters + string.digits + string.punctuation
+            # chars = string.ascii_letters + string.digits + string.punctuation
+            with connection:
+                with connection.cursor() as cu:
+                    cu.execute("INSERT INTO sign_up VALUES (%s, %s, %s, %s, %s, %s);", (
+                        fname, enmail, role, lname, password1, photo))
 
-            huh = SignUp(fname, enmail, role, lname, password1, photo)
-            session.add(huh)
-            session.commit()
-            print(session.query(SignUp).all())
+            # huh = SignUp(fname, enmail, role, lname, password1, photo)
+            # session.add(huh)
+            # session.commit()
+            # print(session.query(SignUp).all())
             res = make_response(redirect(url_for('auth.login')))
             return res
 

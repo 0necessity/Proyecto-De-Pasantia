@@ -1,9 +1,11 @@
 import base64
 import html
+
+import psycopg2
 from flask import *  # fix this later
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from .auth import SignUp
+# from .auth import SignUp
 from pagina import create_app
 import jwt
 from datetime import datetime, timedelta
@@ -20,6 +22,11 @@ def deco(token):
     return payload
 
 
+connection = psycopg2.connect(
+    "postgres://csxmmwsv:2ySU--ymn0e_2TscHlD1C038WqJeTAZ6@drona.db.elephantsql.com/csxmmwsv"
+)
+
+
 def log_check():
     try:
         cookie = request.cookies
@@ -28,16 +35,22 @@ def log_check():
     except jwt.exceptions.DecodeError:
         return {}
 
+    cookie = request.cookies
+    user_cookie = cookie.get("user")
+    menu_items = []
     if user_cookie is not None:
         user = deco(user_cookie)
         if user is not None:
-            pic_query = session.query(SignUp.photo).filter_by(name=user["name"]).first()
+            with connection:
+                with connection.cursor() as cu:
+                    cu.execute("SELECT photo FROM sign_up WHERE fname = %s;", (user["name"],))
+                    pic_query = cu.fetchone()
+         # if pic_query is None:
+            #     pic_query = b""
+            # else:
+            #     pic_query = pic_query.encode('utf-8')
+            encoded_image = base64.b64encode(pic_query[0] if pic_query else b"").decode('utf-8')
 
-
-
-
-
-            encoded_image = base64.b64encode(pic_query[0] if pic_query else None).decode('utf-8')
             named = html.escape(user["name"])
             menu_items = [
                 f'<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>',
