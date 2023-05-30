@@ -1,0 +1,30 @@
+{% extends "house.html" %} {% block title %}Login{% endblock %}
+
+
+{% block cont %}
+<form method="POST" id="forum">
+
+  <div class="form-group" id="pasi">
+    <label for="password1">Password</label>
+    <input
+      value="put new password"
+      type="password"
+      class="form-control"
+      id="password1"
+      name="password1"
+      placeholder="Enter password"
+    />
+<button type="button" id="show-password">Show</button>
+<script>
+  const passwordInput = document.getElementById('password1');
+  const showPasswordButton = document.getElementById('show-password');
+
+  showPasswordButton.addEventListener('click', function(event) {
+    event.preventDefault();
+    passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+  });
+</script>
+  </div>
+      <button type="submit" name="edit" value="Upload" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}

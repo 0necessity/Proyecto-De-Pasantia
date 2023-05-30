@@ -1,0 +1,150 @@
+{% extends "house.html" %} {% block title %}Change{% endblock %}
+{% block log %}{{code[0]|safe}}{% endblock %}
+{% block pfp %}{{code[1]|safe}}{% endblock %}
+{% block cont %}
+<style>
+  @media (max-width: 700px) {
+    #cuerpo {
+      justify-content: center !important;
+      flex-wrap: wrap;
+    }
+    .content {
+      min-width: 1px !important;
+    }
+
+  }
+  p {
+    padding-left: 4rem;
+  }
+  .content {
+    /*put flex-wrap: wrap withe media later to #cuerpo */
+    height: 400px;/* CHANGE THIS TWO LATER */
+    width: 400px;/* CHANGE THIS TWO LATER */
+    min-width: 400px;
+    overflow: hidden;
+    position: relative;
+  }
+  .content .images {
+    height: 100%;
+    width: 100%;
+  }
+  .images img{
+    height: 100%;
+    width: 100%;
+  }
+  .btm-sliders {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    display: flex;
+    transform: translateX(-50%);
+  }
+  .btm-sliders span{
+    height: 15px;
+    width: 50px;
+    border: 2px solid white;
+    margin: 0 3px;
+    cursor: pointer;
+
+  }
+
+  .content .slide{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 45px;
+    border: 2px solid white;
+    background: rgba(255,255,255,0.1);
+
+    cursor: pointer;
+
+  }
+  .content .slide:hover{
+    background: rgba(255,255,255,0.2);
+  }
+
+  .slide span{
+    font-size: 35px;
+    color: white;
+    line-height: 41px;
+  }
+  .content .right{
+    right: 0;
+  }
+#cuerpo {
+  display: flex;
+  justify-content: space-between;
+}
+#teto {
+  text-align: right;
+  display: block;
+  word-break: break-word;
+}
+
+
+</style>
+<script>
+  var indexVaulue =1;
+  showImg(indexVaulue);
+  function btm_slide(e){showImg(indexVaulue = e);}
+  function side_slide(e){showImg(indexVaulue += e);}
+  function showImg(e){
+    var i;
+    const img = document.querySelectorAll('img.yaya');
+    const sliders = document.querySelectorAll('.btm-sliders span');
+    if (e>img.length){indexVaulue = 1}
+    if (e<1){indexVaulue = img.length}
+    for(i=0; i <img.length; i++){
+      img[i].style.display = "none";
+    }
+    for(i=0; i <sliders.length; i++){
+      sliders[i].style.background = "rgba(255,255,255,0.1)";
+    }
+      img[indexVaulue-1].style.display = "block";
+      sliders[indexVaulue-1].style.background = "white";
+
+  }
+
+</script>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+{{poster["ad_btm"]|safe}}
+{{poster["fadmin_btm"]|safe}}
+{{poster["ed_btm"]|safe}}
+<div id="cuerpo">
+  <div class="content">
+    {% if poster['img'][num]|length > 1 %}
+    <div class="images">
+    {% for i in range(0,poster['img'][num]|length) %}
+      <img class="yaya" id="yaya{{i}}" src="data:image/png;base64, {{poster['img'][num][i]}}">
+    {% endfor %}
+          </div>
+
+      <div onclick="side_slide(-1)" class="slide left">
+        <span class="fas fa-angle-left"><</span>
+      </div>
+      <div onclick="side_slide(1)" class="slide right">
+        <span class="fas fa-angle-right">></span>
+      </div>
+      <div class="btm-sliders">
+        {% for i in range(0,poster['img'][num]|length) %}
+          <span onclick="btm_slide( {{i}}+1 )"></span>
+        {% endfor %}
+      </div>
+        {% else %}
+        <div class="images">
+      <img src="data:image/png;base64, {{poster['img'][num][0]}}">
+        </div>
+    {% endif %}
+  </div>
+  <div id="teto">
+    <h1>{{poster["names"][num]}}</h1>
+    <p>{{poster["cate"][num]}}</p>
+    <h3>${{poster["price"][num]}}</h3>
+    <p>Vendedor: {{poster["owner"][num]}}</p>
+    <p>Inventario: {{poster["cuant"][num]}}</p>
+    <p>{{poster["desc"][num]}}</p>
+
+  </div>
+</div>
+
+{% endblock %}

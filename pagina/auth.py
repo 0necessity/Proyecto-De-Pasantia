@@ -75,7 +75,7 @@ def log_check():
                 with connection.cursor() as cu:
                     cu.execute("SELECT photo FROM sign_up WHERE fname = %s;", (user["name"],))
                     pic_query = cu.fetchone()
-         # if pic_query is None:
+            # if pic_query is None:
             #     pic_query = b""
             # else:
             #     pic_query = pic_query.encode('utf-8')
@@ -192,79 +192,92 @@ def profile():
         user = []
 
     if request.method == "POST":
-        if user_cookie is not None:
+        print(request.form)
+        print(request.method)
+        if 'edit' in request.form:
+            print("CONGRATULATION, YOU TRIED TO RUN EDIT")
 
-            enmail = str(request.form.get("email")).lower()
-            fname = str(request.form.get("firstName"))
-            lname = str(request.form.get("lastName"))
-            password1 = str(request.form.get("password1"))
-            photo = request.files["image"].read()
-            role = request.form.get("role")
-            encoded_image = base64.b64encode(photo).decode('utf-8')
-            pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-            match = re.match(pattern, str(request.form.get("email")))
-            with connection:
-                with connection.cursor() as cu:
-                    cu.execute("SELECT * FROM sign_up WHERE fname = %s;", (fname,))
-                    r = cu.fetchone()
-                    cu.execute("SELECT * FROM sign_up WHERE emails = %s;", (enmail,))
-                    s = cu.fetchone()
+            if user_cookie is not None:
 
-            if 0 < len(enmail) and match is None:
-                flash("Enter a valid email", category="error")
-            elif 0 < len(fname) < 3:
-                flash("Your first name need to be larger", category="error")
-            elif 0 < len(lname) < 3:
-                flash("Your last name need to be larger", category="error")
-            elif 0 < len(password1) < 9:
-                flash("Your password need to be larger", category="error")
-            elif r is not None and fname != usuario["name"]:
-                flash("That name is already in use, please select a new one", category="error")
-            elif s is not None and enmail != usuario["emails"]:
-                flash("That email is already in use, please select a new one", category="error")
-            elif len(photo) > 5000000:
-                flash("The size of your profile picture is too big. Please select an smaller one", category="error")
-            elif len(photo) != 0 and not any(
-                    pattern in photo[:4] for pattern in [b'\xff\xd8\xff\xe0', b'\xff\xd8\xff\xe1', b'\x89PNG']):
-                flash("This type of files is not supported, please make sure to upload a PNG or JPEG file",
-                      category="error")
-            else:
-                try:
-                    with connection:
-                        with connection.cursor() as cu:
-                            cu.execute("SELECT photo FROM sign_up WHERE fname = %s;", (usuario["name"],))
-                            actual_photo = cu.fetchall()
-                    PHOTO = psycopg2.Binary(photo) if len(photo) >= 5 else psycopg2.Binary(actual_photo[0][0])
+                enmail = str(request.form.get("email")).lower()
+                fname = str(request.form.get("firstName"))
+                lname = str(request.form.get("lastName"))
+                password1 = str(request.form.get("password1"))
+                photo = request.files["image"].read()
+                role = request.form.get("role")
+                encoded_image = base64.b64encode(photo).decode('utf-8')
+                pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+                match = re.match(pattern, str(request.form.get("email")))
+                with connection:
+                    with connection.cursor() as cu:
+                        cu.execute("SELECT * FROM sign_up WHERE fname = %s;", (fname,))
+                        r = cu.fetchone()
+                        cu.execute("SELECT * FROM sign_up WHERE emails = %s;", (enmail,))
+                        s = cu.fetchone()
 
-                    apli = create_app()
+                if 0 < len(enmail) and match is None:
+                    flash("Enter a valid email", category="error")
+                elif 0 < len(fname) < 3:
+                    flash("Your first name need to be larger", category="error")
+                elif 0 < len(lname) < 3:
+                    flash("Your last name need to be larger", category="error")
+                elif 0 < len(password1) < 9:
+                    flash("Your password need to be larger", category="error")
+                elif r is not None and fname != usuario["name"]:
+                    flash("That name is already in use, please select a new one", category="error")
+                elif s is not None and enmail != usuario["emails"]:
+                    flash("That email is already in use, please select a new one", category="error")
+                elif len(photo) > 5000000:
+                    flash("The size of your profile picture is too big. Please select an smaller one", category="error")
+                elif len(photo) != 0 and not any(
+                        pattern in photo[:4] for pattern in [b'\xff\xd8\xff\xe0', b'\xff\xd8\xff\xe1', b'\x89PNG']):
+                    flash("This type of files is not supported, please make sure to upload a PNG or JPEG file",
+                          category="error")
+                else:
+                    try:
+                        with connection:
+                            with connection.cursor() as cu:
+                                cu.execute("SELECT photo FROM sign_up WHERE fname = %s;", (usuario["name"],))
+                                actual_photo = cu.fetchall()
+                        PHOTO = psycopg2.Binary(photo) if len(photo) >= 5 else psycopg2.Binary(actual_photo[0][0])
 
-                    with connection:
-                        with connection.cursor() as cu:
-                            cu.execute("""
-                                UPDATE sign_up
-                                SET fname = %s, emails = %s, rola = %s, lastname = %s, password = %s, photo = %s
-                                WHERE fname = %s;
-                            """, (fname, enmail, role, lname, password1, PHOTO, usuario["name"]))
+                        apli = create_app()
 
-                    token = jwt.encode({
-                        'name': fname,
-                        "emails": enmail,
-                        "role": role,
-                        "lastname": lname,
-                        "password": password1,
-                        'expiration': str(datetime.utcnow() + timedelta(seconds=6000))
-                    },
-                        apli.config['SECRET_KEY'])
+                        with connection:
+                            with connection.cursor() as cu:
+                                cu.execute("""
+                                    UPDATE sign_up
+                                    SET fname = %s, emails = %s, rola = %s, lastname = %s, password = %s, photo = %s
+                                    WHERE fname = %s;
+                                """, (fname, enmail, role, lname, password1, PHOTO, usuario["name"]))
 
-                    res = make_response(redirect(url_for('auth.profile')))
-                    res.delete_cookie("user")
-                    res.set_cookie('user', token, 6000)
-                    return res
+                        token = jwt.encode({
+                            'name': fname,
+                            "emails": enmail,
+                            "role": role,
+                            "lastname": lname,
+                            "password": password1,
+                            'expiration': str(datetime.utcnow() + timedelta(seconds=6000))
+                        },
+                            apli.config['SECRET_KEY'])
 
-                except jwt.ExpiredSignatureError:
-                    print("Expired signature error occurred")
-                except jwt.InvalidTokenError:
-                    print("Invalid token error occurred")
+                        res = make_response(redirect(url_for('auth.profile')))
+                        res.delete_cookie("user")
+                        res.set_cookie('user', token, 6000)
+                        print("CONGRATULATION, YOU RAN EDIT")
+
+                        return res
+
+                    except jwt.ExpiredSignatureError:
+                        print("Expired signature error occurred")
+                    except jwt.InvalidTokenError:
+                        print("Invalid token error occurred")
+        elif 'delete' in request.form:
+            print("CONGRATULATION, YOU TRIED TO RUN DELETE")
+            with connection.cursor() as cu:
+                cu.execute("DELETE FROM sign_up WHERE fname = %s;", (usuario["name"],))
+                print("CONGRATULATION, YOU RAN DELETE")
+                return redirect(url_for('auth.logout'))
 
     return render_template("profile.html", code=log_check(), user=user)
 
@@ -367,6 +380,62 @@ def continues():
             return res
 
     return render_template("tranquilo.html", lname_status=lname_is_missing, code=log_check())
+
+
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.message import EmailMessage
+
+temp_lo_email = ''
+temp_pass_code = ''
+@auth.route("/password", methods=['POST', "GET"])
+def password():
+    if request.method == "POST":
+        global temp_pass_code
+        temp_pass_code = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(50))
+        print(temp_pass_code)
+        print("1")
+        global temp_lo_email
+        temp_lo_email = request.form.get("email").lower()
+        #In body of the good code
+
+        # msg = EmailMessage()
+        #
+        # # msg = MIMEMultipart()
+        # msg["From"] = "proyectoproyecto@aol.com"
+        # msg["To"] = temp_lo_email
+        # msg["Subject"] = "Password recuparation"
+        # msg.set_content("Yeay yeay")
+        # print("2")
+        # with smtplib.SMTP("smtp.aol.com", 587) as server:
+        #     print("3")
+        #     server.starttls()
+        #     server.login("ProyectoProyecto", "aXwVBkYUjeU&JazgE7MaX!cS77")
+        #     server.send_message(msg)  # Send the email
+        #
+        #     # server.sendmail("proyectoproyecto@aol.com", lo_email, msg.as_string())
+        #     print("4")
+
+        return "<h1>MAIL SEND!</h1>"
+    print("5")
+    return render_template("password_send.html")
+
+@auth.route("/password/<numeros>", methods=['POST', 'GET'])
+def user_profile(numeros):
+    if numeros == temp_pass_code:
+        if request.method == "POST":
+            password1 = str(request.form.get("password1"))
+            with connection:
+                with connection.cursor() as cu:
+                    cu.execute("""
+                        UPDATE sign_up
+                        SET password = %s
+                        WHERE emails = %s;
+                    """, (password1, temp_lo_email))
+            return redirect(url_for('auth.login'))
+        return render_template("pass_rec.html")
+    return f"{numeros} NO EXISTE!!"
 
 
 @auth.route("/login", methods=['POST', 'GET'])
@@ -485,9 +554,8 @@ def sign_up():
             flash("Please enter an valid email direction", category="error")
         elif len(photo) > 5000000:
             flash("The size of your profile picture is too big. Please select an smaller one", category="error")
-        # DE-COMMENT THIS LATER (MAKE TEST ON THIS TOO TO MAKE SURE IT WORKS WELL)
-        # elif not photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[:4] == b'\x89PNG' or photo == None:
-        #     flash("This type of files is not supported, please make sure to upload a PNG or JPEG file", category="error")
+        elif not photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[:4] == b'\x89PNG' or photo == None:
+            flash("This type of files is not supported, please make sure to upload a PNG or JPEG file", category="error")
         else:
             if len(photo) < 5:
                 image_path = os.path.join(os.getcwd(), 'pagina', 'static', "default.jpg")

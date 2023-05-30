@@ -21,7 +21,6 @@
   flex-grow: 1;
   margin-left: 10px;
 }
-
 #oh_my_gah form {
       flex-wrap: wrap;
 }
@@ -32,7 +31,6 @@
 #pasi button {
     margin: 0.5rem;
 }
-
 #oh_my_gah {
   display: flex;
   flex-wrap: wrap;
