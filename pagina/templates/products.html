@@ -141,8 +141,12 @@
     <p>{{poster["cate"][num]}}</p>
     <h3>${{poster["price"][num]}}</h3>
     <p>Vendedor: {{poster["owner"][num]}}</p>
+    {% if poster["cuant"][num] != 0 %}
     <p>Inventario: {{poster["cuant"][num]}}</p>
-    <p>{{poster["desc"][num]}}</p>
+    {% else %}
+    <p>Inventario: Unidades agotadas</p>
+    {% endif %}
+    <p id="desc">{{poster["desc"][num]}}</p>
 
   </div>
 </div>

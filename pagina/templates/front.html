@@ -12,6 +12,12 @@
     width: 20vw;
     aspect-ratio: 1/1;
   }
+
+  #dream_team {
+    display: flex;
+    justify-content: space-between;
+  }
+
 .grid-container {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -23,7 +29,7 @@
   padding: 10px;
   text-align: center;
   height: auto; /* Adjusted property */
-  width: auto;
+  width: 23vw;
   box-sizing: border-box;
 }
 
@@ -34,30 +40,38 @@
 
 .grid-item p {
   margin: 0;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 690px) {
   .grid-container {
     grid-template-columns: repeat(1, 1fr);
   }
     #yaya {
     width: 75vw;
+
   }
+  .grid-item {
+  width: 86.25vw;
+}
 }
 
 </style>
 <div class="grid-container">
 
-  <br />
 {% set length = poster["names"]|length %}
 <div class="grid-container">
 {% for i in range(length) %}
   <div class="grid-item">
     <a href="http://127.0.0.1:5000/posts/{{poster['id'][i]}}">
-    <p>Item: {{ poster["names"][i] }}</p>
-    <p>Picture: {{ poster["squares"][i][0][0] }}</p>
     <img id="yaya" src="data:image/png;base64, {{poster['img'][i][0]}}">
-    <p>Price: {{poster["price"][i]}}</p>
+                <p>{{ poster["names"][i] }}</p>
+      <div id="dream_team">
+    <p><span style="font-size: 0.5rem; position: relative; bottom: 0.25rem;">US$</span>{{poster["price"][i]}}<span style="font-size: 0.5rem; position: relative; bottom: 0.25rem;">00</span></p>
+      <p>{{ poster["cuant"][i] }} Unidades</p>
+      </div>
+
     </a>
   </div>
     <br />

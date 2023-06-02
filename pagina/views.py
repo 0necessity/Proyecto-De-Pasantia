@@ -71,7 +71,6 @@ def log_check():
             menu_items = [
                 f'<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>',
                 f"""
-                <link rel="stylesheet" href="../static/please.css">
                 <a href="/profile" class="link">
                     <p><span style="color: white;">Hola, {named}</span></p>
                     <img src="data:image/png;base64,{encoded_image}" class="rounded-circle me-2 ms-auto">
@@ -90,25 +89,25 @@ def poster():
         if user["role"] in ["admin", "Editor", "Administrador de inventario"]:
             elements["button"] = f"""
             </form>
-                <form method="POST" enctype="multipart/form-data" ID="forum">
+                <form method="POST" enctype="multipart/form-data" ID="tbh">
                     <button type="submit" name="post" value="Upload" class="btn btn-primary">POSTER!</button>
                 </form>
             """
         if user["role"] == "Editor":
             elements["ed_btm"] = f"""
-                <form method="POST" enctype="multipart/form-data" ID="forum">
+                <form method="POST" enctype="multipart/form-data" ID="tbh">
                     <button type="submit" name="generic" value="editor" class="btn btn-primary">Editar</button>
                 </form>
             """
         elif user["role"] == "Administrador de inventario":
             elements["ad_btm"] = f"""
-                <form method="POST" enctype="multipart/form-data" ID="forum">
+                <form method="POST" enctype="multipart/form-data" ID="tbh">
                     <button type="submit" name="generic" value="adm_d_inv" class="btn btn-primary">Administrar</button>
                 </form>
             """
         elif user["role"] == "admin":
             elements["fadmin_btm"] = f"""
-                <form method="POST" enctype="multipart/form-data" ID="forum">
+                <form method="POST" enctype="multipart/form-data" ID="tbh">
                     <button type="submit" name="generic" value="full_admin" class="btn btn-primary">Ajustar</button>
                 </form>
             """
@@ -149,8 +148,6 @@ def poster():
     return elements
 
 
-
-
 @views.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == "POST":
@@ -175,6 +172,7 @@ def posts(num):
                                        num=int(num) - 1, state=user["role"])
 
             if "subby" in request.form:
+                # Editor
                 if "quantity" not in request.form:
                     photos = request.files.getlist("photos")
                     pho_by = []
@@ -182,18 +180,61 @@ def posts(num):
                         photo_bytes = photo.read()
                         pho_by.append(photo_bytes)
                     title = str(request.form.get("title"))
-                    price = int(request.form.get("price"))
                     desc = str(request.form.get("desc"))
                     categoria = str(request.form.get("categoria"))
-                    with entries:
-                        with entries.cursor() as cu:
-                            cu.execute("""
-                                UPDATE posts
-                                SET title = %s, price = %s, descrip = %s, category = %s, photos = (%s)
-                                WHERE id = %s;
-                            """, (title, price, desc, categoria, (pho_by), int(num)))
+
+                    if not desc:
+                        desc = '[No Description Available]'
+                    if not title:
+                        flash("Please enter a title", category="error")
+                    elif len(title) < 2:
+                        flash("That title is too small", category="error")
+                    elif len(title) > 30:
+                        flash("That title is too large", category="error")
+                    elif len(desc) > 300:
+                        flash("The description exceeded the limit of characters", category="error")
+                    else:
+                        try:
+                            price = int(request.form.get("price"))
+                        except:
+                            flash("Please enter a price", category="error")
+                            return render_template("P_config.html",
+                                                   code=log_check(), poster=poster(),
+                                                   num=int(num) - 1, state=user["role"])
+                        if pho_by[0] is b'':
+                            flash("Please enter one image as minimum", category="error")
+                            return render_template("P_config.html",
+                                                   code=log_check(), poster=poster(),
+                                                   num=int(num) - 1, state=user["role"])
+                        else:
+                            for photo in pho_by:
+                                if not photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[:4] == b'\x89PNG':
+                                    flash("This type of files is not supported, please make sure to upload a PNG or JPEG file", category="error")
+                                    return render_template("P_config.html",
+                                                           code=log_check(), poster=poster(),
+                                                           num=int(num) - 1, state=user["role"])
+                        with entries:
+                            with entries.cursor() as cu:
+                                cu.execute("""
+                                    UPDATE posts
+                                    SET title = %s, price = %s, descrip = %s, category = %s, photos = (%s)
+                                    WHERE id = %s;
+                                """, (title, price, desc, categoria, (pho_by), int(num)))
+                                flash("Entry successfully edited", category="success")
+                                return render_template("products.html", code=log_check(), poster=poster(),
+                                                       num=int(num) - 1)
+                    return render_template("P_config.html",
+                                           code=log_check(), poster=poster(),
+                                           num=int(num) - 1, state=user["role"])
+                # Administrador de inventario
                 elif "title" not in request.form:
-                    quantity = int(request.form.get("quantity"))
+                    try:
+                        quantity = int(request.form.get("quantity"))
+                    except:
+                        flash("Please enter the quantity of items to sell", category="error")
+                        return render_template("P_config.html",
+                                               code=log_check(), poster=poster(),
+                                               num=int(num) - 1, state=user["role"])
                     with entries:
                         with entries.cursor() as cu:
                             cu.execute(""" 
@@ -201,6 +242,7 @@ def posts(num):
                                 SET quant = %s
                                 WHERE id = %s;
                             """, (quantity, int(num)))
+                # Admin
                 else:
                     photos = request.files.getlist("photos")
                     pho_by = []
@@ -208,17 +250,64 @@ def posts(num):
                         photo_bytes = photo.read()
                         pho_by.append(photo_bytes)
                     title = str(request.form.get("title"))
-                    price = int(request.form.get("price"))
                     desc = str(request.form.get("desc"))
-                    quantity = int(request.form.get("quantity"))
                     categoria = str(request.form.get("categoria"))
-                    with entries:
-                        with entries.cursor() as cu:
-                            cu.execute("""
-                                UPDATE posts
-                                SET title = %s, quant = %s, price = %s, descrip = %s, category = %s, photos = (%s)
-                                WHERE id = %s;
-                            """, (title, quantity, price, desc, categoria, (pho_by), int(num)))
+
+                    if not desc:
+                        desc = '[No Description Available]'
+                    if not title:
+                        flash("Please enter a title", category="error")
+                    elif len(title) < 2:
+                        flash("That title is too small", category="error")
+                    elif len(title) > 30:
+                        flash("That title is too large", category="error")
+                    elif len(desc) > 300:
+                        flash("The description exceeded the limit of characters", category="error")
+                    else:
+                        try:
+                            price = int(request.form.get("price"))
+                        except:
+                            flash("please enter a price", category="error")
+                            return render_template("P_config.html",
+                                                   code=log_check(), poster=poster(),
+                                                   num=int(num) - 1, state=user["role"])
+
+                        try:
+                            quantity = int(request.form.get("quantity"))
+                        except:
+                            flash("please enter the quantity of items to sell", category="error")
+                            return render_template("P_config.html",
+                                                   code=log_check(), poster=poster(),
+                                                   num=int(num) - 1, state=user["role"])
+                        if pho_by[0] is b'':
+                            flash("Please enter one image as minimum", category="error")
+                            return render_template("P_config.html",
+                                                   code=log_check(), poster=poster(),
+                                                   num=int(num) - 1, state=user["role"])
+
+                        else:
+                            for photo in pho_by:
+                                if not photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[
+                                                                                                               :4] == b'\x89PNG':
+                                    flash(
+                                        "This type of files is not supported, please make sure to upload a PNG or JPEG file",
+                                        category="error")
+                                    return render_template("P_config.html",
+                                                           code=log_check(), poster=poster(),
+                                                           num=int(num) - 1, state=user["role"])
+
+                        with entries:
+                            with entries.cursor() as cu:
+                                cu.execute("""
+                                    UPDATE posts
+                                    SET title = %s, quant = %s, price = %s, descrip = %s, category = %s, photos = (%s)
+                                    WHERE id = %s;
+                                """, (title, quantity, price, desc, categoria, (pho_by), int(num)))
+                                return render_template("products.html", code=log_check(), poster=poster(),
+                                                       num=int(num) - 1)
+                    return render_template("P_config.html",
+                                           code=log_check(), poster=poster(),
+                                           num=int(num) - 1, state=user["role"])
             elif "del" in request.form:
                 with entries:
                     with entries.cursor() as cu:
@@ -242,40 +331,43 @@ def sell():
                 photo_bytes = photo.read()
                 pho_by.append(photo_bytes)
             title = str(request.form.get("title"))
-            #
 
-            try:
-                price = int(request.form.get("price"))
-            except:
-                flash("please enter a price",category="error")
-                return render_template("sold.html", code=log_check())
-
-            try:
-                quantity = int(request.form.get("quantity"))
-            except:
-                flash("please enter the quantity of items to sell",category="error")
-                return render_template("sold.html", code=log_check())
-
-            #
             desc = str(request.form.get("desc"))
             categoria = str(request.form.get("categoria"))
             if not desc:
                 desc = '[No Description Available]'
-            if pho_by is None:
-                flash("Please enter one image as minimum",category="error")
-            else:
-                for photo in pho_by:
-                    if not photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[:4] == b'\x89PNG':
-                        flash("This type of files is not supported, please make sure to upload a PNG or JPEG file", category="error")
-                        return render_template("sold.html", code=log_check())
-
-            if len(title) < 2:
-                flash("That name is too small",category="error")
+            if not title:
+                flash("Please enter a title", category="error")
+            elif len(title) < 2:
+                flash("That title is too small", category="error")
             elif len(title) > 30:
-                flash("That name is too large",category="error")
+                flash("That title is too large", category="error")
             elif len(desc) > 300:
                 flash("The description exceeded the limit of characters", category="error")
             else:
+                try:
+                    price = int(request.form.get("price"))
+                except:
+                    flash("please enter a price", category="error")
+                    return render_template("sold.html", code=log_check())
+
+                try:
+                    quantity = int(request.form.get("quantity"))
+                except:
+                    flash("please enter the quantity of items to sell", category="error")
+                    return render_template("sold.html", code=log_check())
+
+                if pho_by[0] is b'':
+                    flash("Please enter one image as minimum", category="error")
+                    return render_template("sold.html", code=log_check())
+                else:
+                    for photo in pho_by:
+                        if not (photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[
+                                                                                                        :4] == b'\x89PNG'):
+                            flash("This type of files is not supported, please make sure to upload a PNG or JPEG file",
+                                  category="error")
+                            return render_template("sold.html", code=log_check())
+
                 with entries:
                     with entries.cursor() as cu:
                         cu.execute("INSERT INTO posts VALUES (%s, %s, %s, %s, %s, %s, (%s));",

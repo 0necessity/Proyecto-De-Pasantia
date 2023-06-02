@@ -5,8 +5,9 @@
 
 {% block cont %}
 <div id="oh_my_gah">
-<img src="https://www.murrayglass.com/wp-content/uploads/2020/10/avatar-2048x2048.jpeg">
-<form method="POST" enctype="multipart/form-data" ID="forum">
+{{code[2]|safe}}
+<form method="POST" enctype="multipart/form-data" ID="ffa">
+
   <div class="form-group">
     <label for="email">Email Address</label>
     <input
@@ -40,7 +41,6 @@
       placeholder="Enter last name"
     />
   </div>
-
   <div class="form-group" id="pasi">
     <label for="password1">Password</label>
     <input
@@ -80,6 +80,10 @@
         #preview{
             width: 50px;
         }
+        #bou {
+          display: flex;
+          justify-content: space-between;
+        }
     </style>
   </div>
 
@@ -96,13 +100,11 @@
       </select>
   </div>
   <br />
+  <div id="bou">
   <button type="submit" name="edit" value="Upload" class="btn btn-primary">Submit</button>
+  <button type="submit" name="delete" value="Upload" class="btn btn-primary">DELETE ACCOUNT</button>
+  </div>
 </form>
-    <form method="POST" enctype="multipart/form-data" ID="forum">
-        <h3>Form 1</h3>
-        <!-- Add your form fields here -->
-        <button type="submit" name="delete" value="Upload" class="btn btn-primary">DELETICION</button>
-    </form>
 </div>
 
 {% endblock %}

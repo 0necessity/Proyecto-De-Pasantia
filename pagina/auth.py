@@ -85,15 +85,14 @@ def log_check():
             menu_items = [
                 f'<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>',
                 f"""
-                <link rel="stylesheet" href="../static/please.css">
                 <a href="/profile" class="link">
                     <p><span style="color: white;">Hola, {named}</span></p>
                     <img src="data:image/png;base64,{encoded_image}" class="rounded-circle me-2 ms-auto">
                 </a>
-                """
+                """,
+                f'<img id="ppfp" src="data:image/png;base64,{encoded_image}" class="rounded-circle me-2 ms-auto">'
             ]
     return menu_items
-
 
 # class SignUp(Base):
 #     try:
@@ -195,7 +194,6 @@ def profile():
         print(request.form)
         print(request.method)
         if 'edit' in request.form:
-            print("CONGRATULATION, YOU TRIED TO RUN EDIT")
 
             if user_cookie is not None:
 
@@ -205,7 +203,6 @@ def profile():
                 password1 = str(request.form.get("password1"))
                 photo = request.files["image"].read()
                 role = request.form.get("role")
-                encoded_image = base64.b64encode(photo).decode('utf-8')
                 pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
                 match = re.match(pattern, str(request.form.get("email")))
                 with connection:
@@ -264,7 +261,6 @@ def profile():
                         res = make_response(redirect(url_for('auth.profile')))
                         res.delete_cookie("user")
                         res.set_cookie('user', token, 6000)
-                        print("CONGRATULATION, YOU RAN EDIT")
 
                         return res
 
@@ -273,10 +269,8 @@ def profile():
                     except jwt.InvalidTokenError:
                         print("Invalid token error occurred")
         elif 'delete' in request.form:
-            print("CONGRATULATION, YOU TRIED TO RUN DELETE")
             with connection.cursor() as cu:
                 cu.execute("DELETE FROM sign_up WHERE fname = %s;", (usuario["name"],))
-                print("CONGRATULATION, YOU RAN DELETE")
                 return redirect(url_for('auth.logout'))
 
     return render_template("profile.html", code=log_check(), user=user)

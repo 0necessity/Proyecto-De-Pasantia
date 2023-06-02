@@ -12,7 +12,24 @@
     height: 60px; /* set the max-height of the image to 100% of the parent container */
 }
 
-#oh_my_gah img {
+#ffa .form-control {
+    color: black;
+    border: 1px solid black;
+
+}
+.navbar {
+    margin-bottom: 10px;
+}
+
+#desc {
+    text-align: end;
+}
+
+#tbh {
+    display: flex;
+    justify-content: center;
+}
+#ppfp {
   width: 150px;
   height: 150px;
   flex-shrink: 0;
@@ -22,7 +39,10 @@
   margin-left: 10px;
 }
 #oh_my_gah form {
-      flex-wrap: wrap;
+    flex-wrap: wrap;
+    padding-left: 10px;
+    border-left: black solid;
+
 }
 #pasi {
     display: inline-flex;
