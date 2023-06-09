@@ -31,8 +31,6 @@ GOOGLE_CLIENT_ID = "767012225869-o403codh716ib53pnug7pdhpmnqs7mid.apps.googleuse
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 
 auth = Blueprint("auth", __name__)
-Base = declarative_base()
-
 
 def deco(token):
     try:
@@ -83,46 +81,17 @@ def log_check():
 
             named = html.escape(user["name"])
             menu_items = [
-                f'<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>',
+                f'<a class="nav-item nav-link" id="logout" href="/logout">Cerrar sesión</a>',
                 f"""
                 <a href="/profile" class="link">
                     <p><span style="color: white;">Hola, {named}</span></p>
                     <img src="data:image/png;base64,{encoded_image}" class="rounded-circle me-2 ms-auto">
                 </a>
                 """,
-                f'<img id="ppfp" src="data:image/png;base64,{encoded_image}" class="rounded-circle me-2 ms-auto">'
+                f'<img id="ppfp" src="data:image/png;base64,{encoded_image}" style="padding-right: 8px; border-radius: 20px">'
             ]
     return menu_items
 
-# class SignUp(Base):
-#     try:
-#         __tablename__ = "sign-up"
-#         name = Column("name", String, unique=True)
-#         emails = Column("emails", String, unique=True)
-#         role = Column("role", String)
-#         lastname = Column("lastname", String)
-#         password = Column("password", String)
-#         photo = Column("photo", String)
-#         id = Column(Integer, primary_key=True, autoincrement=True)
-#     except:
-#         pass
-#
-#     def __init__(self, name, emails, role, lastname, password, photo):
-#         self.name = name
-#         self.emails = emails
-#         self.role = role
-#         self.lastname = lastname
-#         self.password = password
-#         self.photo = photo
-#
-#     def __str__(self):
-#         return f"{self.name} {self.emails} {self.role} {self.lastname} {self.password} {self.photo} {self.id}"
-
-
-# engine = create_engine("sqlite:///mydb.db", echo=True)
-# Base.metadata.create_all(bind=engine)
-# Session = sessionmaker(bind=engine)
-# session = Session()
 
 flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
@@ -131,35 +100,8 @@ flow = Flow.from_client_secrets_file(
             "openid"],
     redirect_uri="http://127.0.0.1:5000/callback"
 )
-
 globo = {}
 
-
-####################################################################################################################
-####################################################################################################################
-####################################################################################################################
-# psy = psycopg2.connect(
-#     host="127.0.0.1",
-#     port=5000,
-#     user="postgres",
-#     password="1a22bb333ccc",
-#     database="proyecto-de-python")
-
-# With this ↓ you control psycopg2
-
-# cur = psy.cursor()
-#
-#
-# cur.execute("SELECT name, * FROM testo WHERE id = ARRAY[1, 2, 3];")
-#
-# result = cur.fetchall()
-# # psy.commit() # For anything that is changing
-#
-# print(type(result[0][0]))
-# print(result[0]) #Specific
-# print(result[1]) #Generic
-# # Close the cursor and database connection
-# cur.close(); psy.close()
 
 @auth.route("/logan")
 def logan():
@@ -213,23 +155,25 @@ def profile():
                         s = cu.fetchone()
 
                 if 0 < len(enmail) and match is None:
-                    flash("Enter a valid email", category="error")
+                    flash("Ingresa un correo electrónico válido", category="error")
                 elif 0 < len(fname) < 3:
-                    flash("Your first name need to be larger", category="error")
+                    flash("Tu nombre debe ser más largo", category="error")
                 elif 0 < len(lname) < 3:
-                    flash("Your last name need to be larger", category="error")
+                    flash("Tu apellido debe ser más largo", category="error")
                 elif 0 < len(password1) < 9:
-                    flash("Your password need to be larger", category="error")
+                    flash("Tu contraseña debe ser más larga", category="error")
                 elif r is not None and fname != usuario["name"]:
-                    flash("That name is already in use, please select a new one", category="error")
+                    flash("Ese nombre ya está en uso, por favor selecciona uno nuevo", category="error")
                 elif s is not None and enmail != usuario["emails"]:
-                    flash("That email is already in use, please select a new one", category="error")
+                    flash("Ese correo electrónico ya está en uso, por favor selecciona uno nuevo", category="error")
                 elif len(photo) > 5000000:
-                    flash("The size of your profile picture is too big. Please select an smaller one", category="error")
+                    flash("El tamaño de tu foto de perfil es demasiado grande. Por favor, selecciona una más pequeña",
+                          category="error")
                 elif len(photo) != 0 and not any(
                         pattern in photo[:4] for pattern in [b'\xff\xd8\xff\xe0', b'\xff\xd8\xff\xe1', b'\x89PNG']):
-                    flash("This type of files is not supported, please make sure to upload a PNG or JPEG file",
+                    flash("Este tipo de archivos no es compatible, por favor asegúrate de cargar un archivo PNG o JPEG",
                           category="error")
+
                 else:
                     try:
                         with connection:
@@ -344,7 +288,7 @@ def continues():
             if photo_response.status_code == 200:
                 photo = photo_response.content
         if not len(lname) > 2:
-            flash("Your last name needs to be longer", category="error")
+            flash("Tu apellido debe ser más largo", category="error")
         else:
             email = globo["email"].lower()
             fname = globo["given_name"]
@@ -375,11 +319,6 @@ def continues():
 
     return render_template("tranquilo.html", lname_status=lname_is_missing, code=log_check())
 
-
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.message import EmailMessage
 
 temp_lo_email = ''
 temp_pass_code = ''
@@ -448,13 +387,13 @@ def login():
                 print(user)
 
         if not lo_email:
-            flash("Please enter an email", category="error")
+            flash("Por favor ingresa un correo electrónico", category="error")
         elif not lo_password:
-            flash("Please enter a password", category="error")
+            flash("Por favor ingresa una contraseña", category="error")
         elif not user:
-            flash("Wrong email", category="error")
+            flash("Correo electrónico incorrecto", category="error")
         elif user[4] != lo_password:
-            flash("Wrong password", category="error")
+            flash("Contraseña incorrecta", category="error")
         else:
             # Login successful, set cookie and redirect
             res = make_response(redirect(url_for('views.home')))
@@ -531,25 +470,29 @@ def sign_up():
 
         # print(password1)
         if r is not None:
-            flash("That name is already in use, please select a new one", category="error")
+            flash("Ese nombre ya está en uso, por favor selecciona uno nuevo", category="error")
         elif s is not None:
-            flash("That email is already in use, please select a new one", category="error")
+            flash("Ese correo electrónico ya está en uso, por favor selecciona uno nuevo", category="error")
         elif age < 18:
-            flash("You must be above 18 to enter", category="error")
+            flash("Debes tener más de 18 años para ingresar", category="error")
         elif password1 != password2:
-            flash("Your passwords need to be the same", category="error")
+            flash("Tus contraseñas deben ser iguales", category="error")
         elif len(password1) < 8:
-            flash("Your password need to be larger", category="error")
+            flash("Tu contraseña debe ser más larga", category="error")
         elif len(fname) < 3:
-            flash("Your name need to be larger", category="error")
+            flash("Tu nombre debe ser más largo", category="error")
         elif len(lname) < 3:
-            flash("Your last name need to be larger", category="error")
+            flash("Tu apellido debe ser más largo", category="error")
         elif match is None:
-            flash("Please enter an valid email direction", category="error")
+            flash("Por favor ingresa una dirección de correo electrónico válida", category="error")
         elif len(photo) > 5000000:
-            flash("The size of your profile picture is too big. Please select an smaller one", category="error")
-        elif not photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[:4] == b'\x89PNG' or photo == None:
-            flash("This type of files is not supported, please make sure to upload a PNG or JPEG file", category="error")
+            flash("El tamaño de tu imagen de perfil es demasiado grande. Por favor selecciona una más pequeña",
+                  category="error")
+        elif not photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[
+                                                                                         :4] == b'\x89PNG' or photo == None:
+            flash("Este tipo de archivo no es compatible, por favor asegúrate de subir un archivo PNG o JPEG",
+                  category="error")
+
         else:
             if len(photo) < 5:
                 image_path = os.path.join(os.getcwd(), 'pagina', 'static', "default.jpg")

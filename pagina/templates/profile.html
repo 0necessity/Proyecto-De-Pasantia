@@ -9,49 +9,49 @@
 <form method="POST" enctype="multipart/form-data" ID="ffa">
 
   <div class="form-group">
-    <label for="email">Email Address</label>
+    <label for="email">Correo electrónico</label>
     <input
       value="{{user[0][1]}}"
       type="email"
       class="form-control"
       id="email"
       name="email"
-      placeholder="Enter email"
+      placeholder="Introduzca su correo"
     />
   </div>
   <div class="form-group">
-    <label for="firstName">First Name</label>
+    <label for="firstName">Nombre</label>
     <input
       value="{{user[0][0]}}"
       type="text"
       class="form-control"
       id="firstName"
       name="firstName"
-      placeholder="Enter first name"
+      placeholder="Introduzca su nombre"
     />
   </div>
   <div class="form-group">
-    <label for="lastName">Last Name</label>
+    <label for="lastName">Apellido</label>
     <input
       value="{{user[0][3]}}"
       type="text"
       class="form-control"
       id="lastName"
       name="lastName"
-      placeholder="Enter last name"
+      placeholder="Introduzca su apellido"
     />
   </div>
   <div class="form-group" id="pasi">
-    <label for="password1">Password</label>
+    <label for="password1">Contraseña</label>
     <input
       value="{{user[0][4]}}"
       type="password"
       class="form-control"
       id="password1"
       name="password1"
-      placeholder="Enter password"
+      placeholder="Introduzca su contraseña"
     />
-<button type="button" id="show-password">Show</button>
+<button type="button" id="show-password">Mostrar</button>
 <script>
   const passwordInput = document.getElementById('password1');
   const showPasswordButton = document.getElementById('show-password');
@@ -64,7 +64,7 @@
   </div>
 
   <div class="form-group">
-    <label for="picture">Take a picture of your face:</label>
+    <label for="picture">Suba su foto de perfil:</label>
         <input type="file" name="image" id="image" onchange="previewImage(event)">
         <img id="preview">
     <script>
@@ -101,8 +101,8 @@
   </div>
   <br />
   <div id="bou">
-  <button type="submit" name="edit" value="Upload" class="btn btn-primary">Submit</button>
-  <button type="submit" name="delete" value="Upload" class="btn btn-primary">DELETE ACCOUNT</button>
+  <button type="submit" name="edit" value="Upload" class="btn btn-primary">Continuar</button>
+  <button type="submit" name="delete" value="Upload" class="btn btn-primary">ELIMINAR PERFIL</button>
   </div>
 </form>
 </div>

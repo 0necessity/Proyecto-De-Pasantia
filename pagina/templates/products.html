@@ -16,6 +16,24 @@
   p {
     padding-left: 4rem;
   }
+  .left {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  }
+  .llleft {
+  position: relative;
+  bottom: 0.16rem;
+  }
+  .right {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  }
+  .rrright {
+  position: relative;
+  bottom: 0.16rem;
+  }
   .content {
     /*put flex-wrap: wrap withe media later to #cuerpo */
     height: 400px;/* CHANGE THIS TWO LATER */
@@ -106,7 +124,6 @@
   }
 
 </script>
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 {{poster["ad_btm"]|safe}}
 {{poster["fadmin_btm"]|safe}}
 {{poster["ed_btm"]|safe}}
@@ -120,10 +137,10 @@
           </div>
 
       <div onclick="side_slide(-1)" class="slide left">
-        <span class="fas fa-angle-left"><</span>
+        <span class="llleft"><b><</b></span>
       </div>
       <div onclick="side_slide(1)" class="slide right">
-        <span class="fas fa-angle-right">></span>
+        <span class="rrright"><b>></b></span>
       </div>
       <div class="btm-sliders">
         {% for i in range(0,poster['img'][num]|length) %}

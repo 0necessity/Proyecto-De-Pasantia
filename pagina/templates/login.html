@@ -1,4 +1,4 @@
-{% extends "house.html" %} {% block title %}Login{% endblock %}
+{% extends "house.html" %} {% block title %}Inicio de Sesión{% endblock %}
 {% block log %}{{code[0]|safe}}{% endblock %}
 {% block pfp %}{{code[1]|safe}}{% endblock %}
 
@@ -13,33 +13,33 @@
 }
 </style>
 <form method="POST" id="forum">
-  <h3 align="center">Login</h3>
+  <h3 align="center">Iniciar sesión</h3>
   <div class="form-group">
-    <label for="email">Email Address</label>
+    <label for="email">Correo electrónico</label>
     <input
       type="email"
       class="form-control"
       id="email"
       name="email"
-      placeholder="Enter email"
+      placeholder="Introduzca su correo"
     />
   </div>
   <div class="form-group">
-    <label for="password">Password</label>
+    <label for="password">Contraseña</label>
     <input
       type="password"
       class="form-control"
       id="password"
       name="password"
-      placeholder="Enter password"
+      placeholder="Introduzca su contraseña"
     />
   </div>
   <br />
-  <button type="submit" class="btn btn-primary">Login</button>
+  <button type="submit" class="btn btn-primary">Continuar</button>
   <br />
-  <p>Did you forgot your <a href="http://127.0.0.1:5000/password">Password?</a></p>
+  <p>¿Ha olvidado su <a href="http://127.0.0.1:5000/password">contraseña?</a></p>
 
 </form>
-<p>Or sign up using your <a href="http://127.0.0.1:5000/logan">Google Account</a></p>
+<p>O inicie sesión con su <a href="http://127.0.0.1:5000/logan">cuenta de Google</a></p>
 
 {% endblock %}

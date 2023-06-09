@@ -1,9 +1,9 @@
-{% extends "house.html" %} {% block title %}Change{% endblock %}
+{% extends "house.html" %} {% block title %}Entrada a la tienda{% endblock %}
 {% block log %}{{code[0]|safe}}{% endblock %}
 {% block pfp %}{{code[1]|safe}}{% endblock %}
 
 {% block cont %}
-<h1>I'M GONNA SELL STUFF</h1>
+<h1>NO SE QUE PONER AQUI, RESUELVE AHORITA</h1>
 
 <style>
   #price {
@@ -24,16 +24,16 @@
 <form method="POST" id="forum" enctype="multipart/form-data">
     {% if state == 'admin' or state == 'Editor' %}
   <div class="form-group">
-    <label for="title">Title</label>
+    <label for="title"></label>
     <input
       type="text"
       class="form-control input-two"
       id="title"
       name="title"
-      placeholder="Enter title"
+      placeholder="Introduzca el título"
     />
   </div>
-  <textarea class="form-control" placeholder="Enter description" name="desc"></textarea>
+  <textarea class="form-control" placeholder="Introduzca una descripción" name="desc"></textarea>
   <div id="twos">
     <div class="form-group">
       <label for="price"></label>
@@ -42,7 +42,7 @@
         class="form-control input-two"
         id="price"
         name="price"
-        placeholder="price"
+        placeholder="Precio"
       />
     </div>
       {% if state == "admin" %}
@@ -53,7 +53,7 @@
         class="form-control"
         id="quantity"
         name="quantity"
-        placeholder="quantity"
+        placeholder="Unidades"
       />
     </div>
       {% endif %}
@@ -128,9 +128,9 @@
     </div>
       {% endif %}
     <div id="buo">
-  <button type="submit" name="subby" class="btn btn-primary">Login</button>
+  <button type="submit" name="subby" class="btn btn-primary">Continuar</button>
     {% if state == 'admin' %}
-      <button type="submit" name="del" class="btn btn-primary">DELETE ENTRY</button>
+      <button type="submit" name="del" class="btn btn-primary">ELIMINAR ENTRADA</button>
     {% endif %}
     </div>
 

@@ -5,7 +5,7 @@
 {% block cont %}
 <form method="POST">
   <div class="form-group">
-    <label for="role">Role (I suppose?)</label>
+    <label for="role">Rol:</label>
      <select id="role" name="role">
         <option value="admin">Administrador</option>
         <option value="Editor">Editor</option>
@@ -16,13 +16,13 @@
   <br />
     {% if lname_status %}
       <div class="form-group">
-        <label for="lastName">Last Name</label>
+        <label for="lastName">Apellido</label>
         <input
           type="text"
           class="form-control"
           id="lastName"
           name="lastName"
-          placeholder="Enter last name"
+          placeholder="Introduzca su apellido"
         />
       </div>
     {% endif %}

@@ -19,16 +19,15 @@
 
 <form method="POST" id="forum" enctype="multipart/form-data">
   <div class="form-group">
-    <label for="title">Title</label>
     <input
       type="text"
       class="form-control input-two"
       id="title"
       name="title"
-      placeholder="Enter title"
+      placeholder="Introduzca el título"
     />
   </div>
-  <textarea class="form-control" placeholder="Enter description" name="desc"></textarea>
+  <textarea class="form-control" placeholder="Introduzca una descripción" name="desc"></textarea>
   <div id="twos">
     <div class="form-group">
       <label for="price"></label>
@@ -37,7 +36,7 @@
         class="form-control input-two"
         id="price"
         name="price"
-        placeholder="price"
+        placeholder="Precio"
       />
     </div>
     <div class="form-group">
@@ -47,7 +46,7 @@
         class="form-control"
         id="quantity"
         name="quantity"
-        placeholder="quantity"
+        placeholder="Unidades"
       />
     </div>
   </div>
@@ -78,6 +77,21 @@
         <input type="file" accept="image/*" multiple id="image-input"  name="photos">
             <div id="preview-container"></div>
             <script>
+                // Get reference to the button and the container
+            const button = document.getElementById('image-input');
+            const container = document.getElementById("preview-container");
+
+            // Add click event listener to the button
+            button.addEventListener("click", function() {
+              // Remove all child elements from the container
+              while (container.firstChild) {
+                container.removeChild(container.firstChild);
+              }
+            });
+
+
+
+
               const input = document.getElementById('image-input');
               const previewContainer = document.getElementById('preview-container');
               input.addEventListener('change', handleFiles);
@@ -107,7 +121,7 @@
 
   </div>
   <br />
-  <button type="submit" class="btn btn-primary">Login</button>
+  <button type="submit" name="venta" class="btn btn-primary">Continuar</button>
   <br />
 </form>
 {% endblock %}

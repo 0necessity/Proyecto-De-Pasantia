@@ -14,60 +14,60 @@
 }
 </style>
 <form method="POST" enctype="multipart/form-data" ID="forum">
-  <h3 align="center">Sign Up</h3>
+  <h3 align="center">Registrarme</h3>
   <div class="form-group">
-    <label for="email">Email Address</label>
+    <label for="email">Correo electrónico</label>
     <input
       type="email"
       class="form-control"
       id="email"
       name="email"
-      placeholder="Enter email"
+      placeholder="Introduzca su correo"
     />
   </div>
   <div class="form-group">
-    <label for="firstName">First Name</label>
+    <label for="firstName">Nombre</label>
     <input
       type="text"
       class="form-control"
       id="firstName"
       name="firstName"
-      placeholder="Enter first name"
+      placeholder="Introduzca su nombre"
     />
   </div>
   <div class="form-group">
-    <label for="lastName">Last Name</label>
+    <label for="lastName">Apellido</label>
     <input
       type="text"
       class="form-control"
       id="lastName"
       name="lastName"
-      placeholder="Enter last name"
+      placeholder="Introduzca su apellido"
     />
   </div>
 
   <div class="form-group">
-    <label for="password1">Password</label>
+    <label for="password1">Contraseña</label>
     <input
       type="password"
       class="form-control"
       id="password1"
       name="password1"
-      placeholder="Enter password"
+      placeholder="Introduzca su contraseña"
     />
   </div>
   <div class="form-group">
-    <label for="password2">Password (Confirm)</label>
+    <label for="password2">Confirmación de contraseña</label>
     <input
       type="password"
       class="form-control"
       id="password2"
       name="password2"
-      placeholder="Confirm password"
+      placeholder="Confirme su contraseña"
     />
   </div>
   <div class="form-group">
-    <label for="picture">Take a picture of your face:</label>
+    <label for="picture">Suba su foto de perfil:</label>
         <input type="file" name="image" id="image" onchange="previewImage(event)">
         <img id="preview">
     <script>
@@ -87,28 +87,28 @@
   </div>
 
   <div>
-    <label for="day">Day:</label>
+    <label for="day">Día:</label>
     <select id="day" name="day">
         {% for day in range(1, 32) %}
             <option value="{{day}}">{{day}}</option>
         {% endfor %}
     </select>
-    <label for="month">Month:</label>
+    <label for="month">Meses:</label>
     <select id="month" name="month">
-        <option value="1">January</option>
-        <option value="2">February</option>
-        <option value="3">March</option>
-        <option value="4">April</option>
-        <option value="5">May</option>
-        <option value="6">June</option>
-        <option value="7">July</option>
-        <option value="8">August</option>
-        <option value="9">September</option>
-        <option value="10">October</option>
-        <option value="11">November</option>
-        <option value="12">December</option>
+        <option value="1">Enero</option>
+        <option value="2">Febrero</option>
+        <option value="3">Marzo</option>
+        <option value="4">Abril</option>
+        <option value="5">Mayo</option>
+        <option value="6">Junio</option>
+        <option value="7">Julio</option>
+        <option value="8">Agosto</option>
+        <option value="9">Septiembre</option>
+        <option value="10">Octubre</option>
+        <option value="11">Noviembre</option>
+        <option value="12">Diciembre</option>
     </select>
-    <label for="year">Year:</label>
+    <label for="year">Año:</label>
     <select id="year" name="year">
         {% for year in y %}
             <option value="{{year}}">{{year}}</option>
@@ -118,7 +118,7 @@
   </div>
 
   <div class="form-group">
-    <label for="role">Role (I suppose?)</label>
+    <label for="role">Rol:</label>
      <select id="role" name="role">
         <option value="admin">Administrador</option>
         <option value="Editor">Editor</option>
@@ -127,8 +127,8 @@
      </select>
   </div>
   <br />
-  <button type="submit" value="Upload" class="btn btn-primary">Submit</button>
+  <button type="submit" value="Upload" class="btn btn-primary">Continuar</button>
 </form>
-<p>Or sign up using your <a href="http://127.0.0.1:5000/logan">Google Account</a></p>
+<p>O inicie sesión con su <a href="http://127.0.0.1:5000/logan">cuenta de Google</a></p>
 
 {% endblock %}
