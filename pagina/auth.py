@@ -8,14 +8,8 @@ import jwt
 from datetime import datetime, timedelta
 import pathlib
 import re
-from flask import Blueprint, render_template, flash, url_for
-from flask import session, redirect, request
-from google_auth_oauthlib.flow import Flow
-from sqlalchemy import *
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import sessionmaker
-
 import requests
+from flask import Blueprint, render_template, flash, url_for
 from flask import session as sa
 from flask import Flask, session, abort, redirect, request, make_response
 from google.oauth2 import id_token
@@ -326,32 +320,49 @@ temp_pass_code = ''
 def password():
     if request.method == "POST":
         global temp_pass_code
-        temp_pass_code = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(50))
-        print(temp_pass_code)
-        print("1")
+        temp_pass_code = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(30))
         global temp_lo_email
         temp_lo_email = request.form.get("email").lower()
         #In body of the good code
 
-        # msg = EmailMessage()
-        #
-        # # msg = MIMEMultipart()
-        # msg["From"] = "proyectoproyecto@aol.com"
-        # msg["To"] = temp_lo_email
-        # msg["Subject"] = "Password recuparation"
-        # msg.set_content("Yeay yeay")
-        # print("2")
-        # with smtplib.SMTP("smtp.aol.com", 587) as server:
-        #     print("3")
-        #     server.starttls()
-        #     server.login("ProyectoProyecto", "aXwVBkYUjeU&JazgE7MaX!cS77")
-        #     server.send_message(msg)  # Send the email
-        #
-        #     # server.sendmail("proyectoproyecto@aol.com", lo_email, msg.as_string())
-        #     print("4")
+        import smtplib
+        from email.message import EmailMessage
+
+        # SMTP server configuration
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587  # Use port 465 for SSL/TLS connection
+
+        # Sender and recipient email addresses
+        sender_email = "p8455947@gmail.com"
+
+        # Email content
+        subject = "Recuperacion de contraseña"
+        body = "Para recuperar su contraseña, por favor ingrese a http://127.0.0.1:5000/password/" + temp_pass_code
+
+        # Create the email message
+        msg = EmailMessage()
+        msg["Subject"] = subject
+        msg["From"] = sender_email
+        msg["To"] = temp_lo_email
+        msg.set_content(body)
+
+        # SMTP authentication credentials
+        username = "p8455947@gmail.com"
+        password = "vydfcrcyaeathtmd"
+
+        try:
+            # Create SMTP connection
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                server.starttls()  # Enable TLS encryption
+                server.login(username, password)  # Login to the SMTP server
+                server.send_message(msg)  # Send the email
+
+                print("Email sent successfully!")
+
+        except Exception as e:
+            print(f"Failed to send email. Error: {str(e)}")
 
         return "<h1>MAIL SEND!</h1>"
-    print("5")
     return render_template("password_send.html")
 
 @auth.route("/password/<numeros>", methods=['POST', 'GET'])
@@ -468,7 +479,8 @@ def sign_up():
                 cu.execute("SELECT * FROM sign_up WHERE emails = %s;", (enmail,))
                 s = cu.fetchone()
 
-        # print(password1)
+        print(photo)
+        print("{"*58)
         if r is not None:
             flash("Ese nombre ya está en uso, por favor selecciona uno nuevo", category="error")
         elif s is not None:
@@ -488,8 +500,8 @@ def sign_up():
         elif len(photo) > 5000000:
             flash("El tamaño de tu imagen de perfil es demasiado grande. Por favor selecciona una más pequeña",
                   category="error")
-        elif not photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[
-                                                                                         :4] == b'\x89PNG' or photo == None:
+        elif not (photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[
+                                                                                         :4] == b'\x89PNG' or photo == b''):
             flash("Este tipo de archivo no es compatible, por favor asegúrate de subir un archivo PNG o JPEG",
                   category="error")
 

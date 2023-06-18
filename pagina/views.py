@@ -1,18 +1,10 @@
 import base64
 import html
-import os
-import random
-import time
 
-import psycopg2
-from flask import *  # fix this later
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-# from .auth import SignUp
-from pagina import create_app
 import jwt
-from datetime import datetime, timedelta
-
+import psycopg2
+from flask import *
+from pagina import create_app
 
 views = Blueprint("views", __name__)
 
@@ -59,10 +51,7 @@ def log_check():
                 with connection.cursor() as cu:
                     cu.execute("SELECT photo FROM sign_up WHERE fname = %s;", (user["name"],))
                     pic_query = cu.fetchone()
-            # if pic_query is None:
-            #     pic_query = b""
-            # else:
-            #     pic_query = pic_query.encode('utf-8')
+
             encoded_image = base64.b64encode(pic_query[0] if pic_query else b"").decode('utf-8')
 
             named = html.escape(user["name"])
@@ -122,16 +111,7 @@ def poster():
 
         elements["img"] = [[base64.b64encode(element).decode('utf-8') for element in sublist] for sublist in
                            elements["squares"]]
-        # for i in elements["img"]:
-        #     for j in i:
-        #        print(j[:10])
-        # print("om"*70)
-        # for i in elements["squares"]:
-        #     for j in i:
-        #        print(j[:10])
-        # print("     ")
-        # for i in pasto:
-        #     print(i[7])
+
         elements["names"] = [item[0] for item in pasto]
         elements["price"] = [item[1] for item in pasto]
         elements["cuant"] = [item[2] for item in pasto]
@@ -140,8 +120,6 @@ def poster():
         elements["cate"] = [item[5] for item in pasto]
         elements["id"] = [item[7] for item in pasto]
 
-        # elements["squares"] = [item[7].strip('{"}').split(',')[0].replace('\\\\', '\\').strip('"') for item in
-        #                        pasto]
 
     return elements
 
@@ -206,7 +184,7 @@ def posts(num):
                                                    num=int(num) - 1, state=user["role"])
                         else:
                             for photo in pho_by:
-                                if not photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[:4] == b'\x89PNG':
+                                if not (photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[:4] == b'\x89PNG'):
                                     flash("Este tipo de archivo no es compatible, asegúrate de subir un archivo PNG o JPEG",category="error")
                                     return render_template("P_config.html",
                                                            code=log_check(), poster=poster(),
@@ -283,7 +261,7 @@ def posts(num):
                                                    state=user["role"])
                         else:
                             for photo in pho_by:
-                                if not photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[:4] == b'\x89PNG':
+                                if not (photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[:4] == b'\x89PNG'):
                                     flash("No se admite ese tipo de archivo, asegúrate de subir un archivo PNG o JPEG",
                                           category="error")
                                     return render_template("P_config.html", code=log_check(), poster=poster(),
