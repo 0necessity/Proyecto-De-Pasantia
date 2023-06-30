@@ -31,7 +31,7 @@ try:
             price INTEGER,
             quant INTEGER,
             descrip TEXT,
-            owner_name TEXT, --this == sign_up.fname
+            owner_name TEXT, 
             category TEXT,
             photos BYTEA[],
             id SERIAL PRIMARY KEY
@@ -102,7 +102,6 @@ def poster():
     with entries.cursor() as cu:
         cu.execute("SELECT * FROM posts ORDER BY id")
         pasto = cu.fetchall()
-        print(pasto)
 
         elements["squares"] = []
         for item in pasto:
@@ -141,7 +140,6 @@ def posts(num):
         user_cookie = cookie.get("user")
         if user_cookie is not None:
             user = deco(user_cookie)
-            print(request.form)
             if request.form.get('generic') in ["editor", 'full_admin', 'adm_d_inv']:
                 return render_template("P_config.html",
                                        code=log_check(), poster=poster(),

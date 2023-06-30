@@ -67,10 +67,7 @@ def log_check():
                 with connection.cursor() as cu:
                     cu.execute("SELECT photo FROM sign_up WHERE fname = %s;", (user["name"],))
                     pic_query = cu.fetchone()
-            # if pic_query is None:
-            #     pic_query = b""
-            # else:
-            #     pic_query = pic_query.encode('utf-8')
+
             encoded_image = base64.b64encode(pic_query[0] if pic_query else b"").decode('utf-8')
 
             named = html.escape(user["name"])
@@ -104,7 +101,6 @@ def logan():
     return redirect(authorization_url)
 
 
-# need to continue working in the SQL
 @auth.route("/profile", methods=['POST', "GET"])
 def profile():
     cookie = request.cookies
@@ -323,41 +319,33 @@ def password():
         temp_pass_code = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(30))
         global temp_lo_email
         temp_lo_email = request.form.get("email").lower()
-        #In body of the good code
 
         import smtplib
         from email.message import EmailMessage
 
-        # SMTP server configuration
         smtp_server = "smtp.gmail.com"
-        smtp_port = 587  # Use port 465 for SSL/TLS connection
+        smtp_port = 587
 
-        # Sender and recipient email addresses
         sender_email = "p8455947@gmail.com"
 
-        # Email content
         subject = "Recuperacion de contraseña"
         body = "Para recuperar su contraseña, por favor ingrese a http://127.0.0.1:5000/password/" + temp_pass_code
 
-        # Create the email message
         msg = EmailMessage()
         msg["Subject"] = subject
         msg["From"] = sender_email
         msg["To"] = temp_lo_email
         msg.set_content(body)
 
-        # SMTP authentication credentials
         username = "p8455947@gmail.com"
         password = "vydfcrcyaeathtmd"
 
         try:
-            # Create SMTP connection
             with smtplib.SMTP(smtp_server, smtp_port) as server:
-                server.starttls()  # Enable TLS encryption
-                server.login(username, password)  # Login to the SMTP server
-                server.send_message(msg)  # Send the email
+                server.starttls()
+                server.login(username, password)
+                server.send_message(msg)
 
-                print("Email sent successfully!")
 
         except Exception as e:
             print(f"Failed to send email. Error: {str(e)}")
@@ -388,14 +376,11 @@ def login():
         lo_password = request.form.get("password")
         lo_email = request.form.get("email").lower()
 
-        # Find user by email
-        # user = session.query(SignUp).filter_by(emails=lo_email).first()
 
         with connection:
             with connection.cursor() as cu:
                 cu.execute("SELECT * FROM sign_up WHERE emails = %s;", (lo_email,))
                 user = cu.fetchone()
-                print(user)
 
         if not lo_email:
             flash("Por favor ingresa un correo electrónico", category="error")
@@ -406,7 +391,6 @@ def login():
         elif user[4] != lo_password:
             flash("Contraseña incorrecta", category="error")
         else:
-            # Login successful, set cookie and redirect
             res = make_response(redirect(url_for('views.home')))
             cookie = request.cookies
             stat = cookie.get("user")
@@ -467,8 +451,7 @@ def sign_up():
         today = dd.date.today()
         age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
         # ///////////////////////////
-        # print(session.query(SignUp).all())
-        # print("huh?")
+
         with connection:
             with connection.cursor() as cu:
                 cu.execute("SELECT * FROM sign_up WHERE fname = %s;", (fname,))
@@ -479,8 +462,6 @@ def sign_up():
                 cu.execute("SELECT * FROM sign_up WHERE emails = %s;", (enmail,))
                 s = cu.fetchone()
 
-        print(photo)
-        print("{"*58)
         if r is not None:
             flash("Ese nombre ya está en uso, por favor selecciona uno nuevo", category="error")
         elif s is not None:
@@ -511,17 +492,11 @@ def sign_up():
                 with open(image_path, 'rb') as image_file:
                     photo = image_file.read()
 
-            # YOU PROB SHOULD MAKE THIS INTO A FUNCTION
-            # chars = string.ascii_letters + string.digits + string.punctuation
             with connection:
                 with connection.cursor() as cu:
                     cu.execute("INSERT INTO sign_up VALUES (%s, %s, %s, %s, %s, %s);", (
                         fname, enmail, role, lname, password1, photo))
 
-            # huh = SignUp(fname, enmail, role, lname, password1, photo)
-            # session.add(huh)
-            # session.commit()
-            # print(session.query(SignUp).all())
             res = make_response(redirect(url_for('auth.login')))
             return res
 
