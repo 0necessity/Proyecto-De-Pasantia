@@ -175,7 +175,7 @@ def posts(num):
                             return render_template("P_config.html",
                                                    code=log_check(), poster=poster(),
                                                    num=int(num) - 1, state=user["role"])
-                        if pho_by[0] is b'':
+                        if pho_by[0] == b'':
                             flash("Por favor, ingresa al menos una imagen", category="error")
                             return render_template("P_config.html",
                                                    code=log_check(), poster=poster(),
@@ -253,7 +253,7 @@ def posts(num):
                             return render_template("P_config.html", code=log_check(), poster=poster(), num=int(num) - 1,
                                                    state=user["role"])
 
-                        if pho_by[0] is b'':
+                        if pho_by[0] == b'':
                             flash("Por favor, ingresa al menos una imagen", category="error")
                             return render_template("P_config.html", code=log_check(), poster=poster(), num=int(num) - 1,
                                                    state=user["role"])
@@ -325,7 +325,7 @@ def sell():
                     flash("Por favor ingresa la cantidad de artículos a vender", category="error")
                     return render_template("sold.html", code=log_check())
 
-                if pho_by[0] is b'':
+                if pho_by[0] == b'':
                     flash("Por favor ingresa al menos una imagen", category="error")
                     return render_template("sold.html", code=log_check())
                 else:

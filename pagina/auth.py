@@ -350,7 +350,7 @@ def password():
         except Exception as e:
             print(f"Failed to send email. Error: {str(e)}")
 
-        return "<h1>MAIL SEND!</h1>"
+        return "<h1>MAIL SEND!</h1> <br /> <a href='http://127.0.0.1:5000/'>Regresar</a>"
     return render_template("password_send.html")
 
 @auth.route("/password/<numeros>", methods=['POST', 'GET'])
