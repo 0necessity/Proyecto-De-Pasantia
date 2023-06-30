@@ -3,7 +3,7 @@ Este proyecto es un backoffice de un e-commerce basado en Python 3.7 como muestr
 El proyecto utiliza el framework Flask, hace uso de JWT Tokens, obedece los protocolos CRUD y Rest además de usar el OAuth de Google.
 
 # Requisitos
-Para ejecutar el proyecto, asegúrate de tener instalados los siguientes módulos:
+Para ejecutar el proyecto, este utiliza principalmente los siguientes módulos:
 
 Flask==1.1.2
 
@@ -17,7 +17,7 @@ PyJWT==2.6.0
 
 psycopg2==2.9.6
 
-
+Entre otros…
 # Instalación
 1- Descarga directamente el archivo o con git utlizá el comando
 ```bash
