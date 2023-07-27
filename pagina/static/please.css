@@ -17,6 +17,13 @@
     border: 1px solid black;
 
 }
+
+#forum .form-control {
+    color: black;
+    border: 1px solid black;
+
+}
+
 .navbar {
     margin-bottom: 10px;
 }

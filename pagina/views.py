@@ -39,8 +39,12 @@ try:
 except:
     pass
 
+import time
+
 
 def log_check():
+    print("COMENZANDO LOG_CHECK ---------------------------------------------------")
+    start_time = time.time()
     cookie = request.cookies
     user_cookie = cookie.get("user")
     menu_items = []
@@ -62,12 +66,23 @@ def log_check():
                     <p><span style="color: white;">Hola, {named}</span></p>
                     <img src="data:image/png;base64,{encoded_image}" class="rounded-circle me-2 ms-auto">
                 </a>
-                """
+                """, " ", " ", " ", " "
             ]
+    if user_cookie is None:
+        menu_items.extend(["", "", "", '<a class="nav-item nav-link" id="signUp" href="/sign_up">Registrate</a>',
+                           '<a class="nav-item nav-link" id="login" href="/login">Inicia Sesión</a>'])
+
+    end_time = time.time()
+    execution_time = end_time - start_time
+
+    print(f"Execution time: {execution_time} seconds")
+    print("TERMINANDO LOG_CHECK ---------------------------------------------------")
     return menu_items
 
 
 def poster():
+    print("COMENZANDO POSTER ------------------------------------------------------")
+    start_time = time.time()
     cookie = request.cookies
     user_cookie = cookie.get("user")
     elements = {}
@@ -111,6 +126,12 @@ def poster():
         elements["img"] = [[base64.b64encode(element).decode('utf-8') for element in sublist] for sublist in
                            elements["squares"]]
 
+
+
+
+
+
+
         elements["names"] = [item[0] for item in pasto]
         elements["price"] = [item[1] for item in pasto]
         elements["cuant"] = [item[2] for item in pasto]
@@ -119,12 +140,20 @@ def poster():
         elements["cate"] = [item[5] for item in pasto]
         elements["id"] = [item[7] for item in pasto]
 
+        # change this to make sure you append the current viewing user to the list
+        elements["unq_ow"] = list(set(elements["owner"]))
 
+    end_time = time.time()
+    execution_time = end_time - start_time
+
+    print(f"Execution time: {execution_time} seconds")
+    print("TERMINANDO POSTER ------------------------------------------------------")
     return elements
 
 
 @views.route('/', methods=['GET', 'POST'])
 def home():
+
     if request.method == "POST":
         if 'post' in request.form:
             return redirect(url_for('views.sell'))
@@ -136,14 +165,35 @@ def home():
 @views.route("/posts/<num>", methods=['POST', 'GET'])
 def posts(num):
     if request.method == "POST":
+        poser = poster()
+
         cookie = request.cookies
         user_cookie = cookie.get("user")
         if user_cookie is not None:
             user = deco(user_cookie)
+
+            # Key details for future changes. Change the poster to use the already called
+            # poser variable , give user, user, better permits for ow change, MAKE SURE TO
+            # PARSE IT SO YOU CANT POST HTML/JAVASCRIPTS INJECTIONS
+
+
+            print("-8*"*54)
+            tato = []
+            holy = poser["unq_ow"]
+            for j in holy: # (LJ, E, C)
+                if poser["owner"][int(num) - 1] == j: # (not j) ow of the current product (LJ)
+                    tato.append(j)
+                elif user["name"] == j: # ow of current viewer (LJ)
+                    tato.append(j)
+
+            poser["unq_ow"] = [ja for ja in holy if ja not in tato]
+            print(poser["unq_ow"])
+
+            # Give user to other returns
             if request.form.get('generic') in ["editor", 'full_admin', 'adm_d_inv']:
                 return render_template("P_config.html",
-                                       code=log_check(), poster=poster(),
-                                       num=int(num) - 1, state=user["role"])
+                                       code=log_check(), poster=poser,
+                                       num=int(num) - 1, state=user["role"], user=user)
 
             if "subby" in request.form:
                 # Editor
@@ -153,15 +203,16 @@ def posts(num):
                     for photo in photos:
                         photo_bytes = photo.read()
                         pho_by.append(photo_bytes)
+                    owner = str(request.form.get("owner"))
                     title = str(request.form.get("title"))
                     desc = str(request.form.get("desc"))
                     categoria = str(request.form.get("categoria"))
 
                     if not desc:
-                        desc = '[Descripción no disponible]'
+                        desc = poser["desc"][int(num) - 1]
                     if not title:
-                        flash("Por favor, ingresa un título", category="error")
-                    elif len(title) < 2:
+                        title = poser["names"][int(num) - 1]
+                    if len(title) < 2:
                         flash("Ese título es demasiado pequeño", category="error")
                     elif len(title) > 30:
                         flash("Ese título es demasiado grande", category="error")
@@ -171,45 +222,55 @@ def posts(num):
                         try:
                             price = int(request.form.get("price"))
                         except:
-                            flash("Por favor, ingresa un precio", category="error")
-                            return render_template("P_config.html",
-                                                   code=log_check(), poster=poster(),
-                                                   num=int(num) - 1, state=user["role"])
+                            price = poser["price"][int(num) - 1]
+
                         if pho_by[0] == b'':
-                            flash("Por favor, ingresa al menos una imagen", category="error")
-                            return render_template("P_config.html",
-                                                   code=log_check(), poster=poster(),
-                                                   num=int(num) - 1, state=user["role"])
+                            jop = 1
+                            for photo in poser["img"][int(num) - 1]:
+                                print(f"THIS IS TRY NO.{jop} "*49)
+                                print(photo)
+                                print("*"*222)
+                                print(base64.b64decode(photo))
+                                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                pho_by.append(base64.b64decode(photo))
+                                jop += 1
+                            print("BASED "*796)
+                            print(pho_by)
+                            image_prior = pho_by[1:]
+                            if image_prior[0] != b'':
+                                pho_by = pho_by[1:]
+
                         else:
                             for photo in pho_by:
-                                if not (photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[:4] == b'\x89PNG'):
-                                    flash("Este tipo de archivo no es compatible, asegúrate de subir un archivo PNG o JPEG",category="error")
+                                if not (photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[
+                                                                                                                :4] == b'\x89PNG'):
+                                    flash(
+                                        "Este tipo de archivo no es compatible, asegúrate de subir un archivo PNG o JPEG",
+                                        category="error")
                                     return render_template("P_config.html",
-                                                           code=log_check(), poster=poster(),
-                                                           num=int(num) - 1, state=user["role"])
+                                                           code=log_check(), poster=poser,
+                                                           num=int(num) - 1, state=user["role"], user=user)
 
                         with entries:
                             with entries.cursor() as cu:
                                 cu.execute("""
                                     UPDATE posts
-                                    SET title = %s, price = %s, descrip = %s, category = %s, photos = (%s)
+                                    SET title = %s, price = %s, descrip = %s, category= %s, owner_name= %s, photos= (%s)
                                     WHERE id = %s;
-                                """, (title, price, desc, categoria, (pho_by), int(num)))
+                                """, (title, price, desc, categoria, owner, (pho_by), int(num)))
                                 flash("Artículo correctamente editado", category="success")
-                                return render_template("products.html", code=log_check(), poster=poster(),
-                                                       num=int(num) - 1)
+                                return redirect(url_for('views.posts', num=num))
+
                     return render_template("P_config.html",
-                                           code=log_check(), poster=poster(),
-                                           num=int(num) - 1, state=user["role"])
+                                           code=log_check(), poster=poser,
+                                           num=int(num) - 1, state=user["role"], user=user)
                 # Administrador de inventario
                 elif "title" not in request.form:
                     try:
                         quantity = int(request.form.get("quantity"))
                     except:
-                        flash("Por favor ingrese la cantidad de artículos a vender", category="error")
-                        return render_template("P_config.html",
-                                               code=log_check(), poster=poster(),
-                                               num=int(num) - 1, state=user["role"])
+                        quantity = poser["cuant"][int(num) - 1]
+
                     with entries:
                         with entries.cursor() as cu:
                             cu.execute(""" 
@@ -217,6 +278,8 @@ def posts(num):
                                 SET quant = %s
                                 WHERE id = %s;
                             """, (quantity, int(num)))
+                        flash("Artículo correctamente administrado", category="success")
+
                 # Admin
                 else:
                     photos = request.files.getlist("photos")
@@ -224,15 +287,16 @@ def posts(num):
                     for photo in photos:
                         photo_bytes = photo.read()
                         pho_by.append(photo_bytes)
+                    owner = str(request.form.get("owner"))
                     title = str(request.form.get("title"))
                     desc = str(request.form.get("desc"))
                     categoria = str(request.form.get("categoria"))
 
                     if not desc:
-                        desc = '[Descripción no disponible]'
+                        desc = poser["desc"][int(num) - 1]
                     if not title:
-                        flash("Por favor, ingresa un título", category="error")
-                    elif len(title) < 2:
+                        title = poser["names"][int(num) - 1]
+                    if len(title) < 2:
                         flash("Ese título es demasiado corto", category="error")
                     elif len(title) > 30:
                         flash("Ese título es demasiado largo", category="error")
@@ -242,40 +306,54 @@ def posts(num):
                         try:
                             price = int(request.form.get("price"))
                         except:
-                            flash("Por favor, ingresa un precio", category="error")
-                            return render_template("P_config.html", code=log_check(), poster=poster(), num=int(num) - 1,
-                                                   state=user["role"])
+                            price = poser["price"][int(num) - 1]
 
                         try:
                             quantity = int(request.form.get("quantity"))
                         except:
-                            flash("Por favor, ingresa la cantidad de elementos a vender", category="error")
-                            return render_template("P_config.html", code=log_check(), poster=poster(), num=int(num) - 1,
-                                                   state=user["role"])
+                            quantity = poser["cuant"][int(num) - 1]
 
                         if pho_by[0] == b'':
-                            flash("Por favor, ingresa al menos una imagen", category="error")
-                            return render_template("P_config.html", code=log_check(), poster=poster(), num=int(num) - 1,
-                                                   state=user["role"])
+                            jop = 1
+                            for photo in poser["img"][int(num) - 1]:
+                                print(f"THIS IS TRY NO.{jop} "*49)
+                                print(photo)
+                                print("*"*222)
+                                print(base64.b64decode(photo))
+                                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                pho_by.append(base64.b64decode(photo))
+                                jop += 1
+                            print("BASED "*796)
+                            print(pho_by)
+                            image_prior = pho_by[1:]
+                            if image_prior[0] != b'':
+                                pho_by = pho_by[1:]
+
                         else:
                             for photo in pho_by:
-                                if not (photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[:4] == b'\x89PNG'):
-                                    flash("No se admite ese tipo de archivo, asegúrate de subir un archivo PNG o JPEG",
-                                          category="error")
-                                    return render_template("P_config.html", code=log_check(), poster=poster(),
-                                                           num=int(num) - 1, state=user["role"])
+                                if not (photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[
+                                                                                                                :4] == b'\x89PNG'):
+                                    flash(
+                                        "Este tipo de archivo no es compatible, asegúrate de subir un archivo PNG o JPEG",
+                                        category="error")
+                                    return render_template("P_config.html",
+                                                           code=log_check(), poster=poser,
+                                                           num=int(num) - 1, state=user["role"], user=user)
+
                         with entries:
                             with entries.cursor() as cu:
                                 cu.execute("""
                                     UPDATE posts
-                                    SET title = %s, quant = %s, price = %s, descrip = %s, category = %s, photos = (%s)
+                                    SET title = %s, quant = %s, price = %s, descrip = %s, category = %s, owner_name= %s, photos = (%s)
                                     WHERE id = %s;
-                                """, (title, quantity, price, desc, categoria, (pho_by), int(num)))
-                                return render_template("products.html", code=log_check(), poster=poster(),
-                                                       num=int(num) - 1)
+                                """, (title, quantity, price, desc, categoria, owner, (pho_by), int(num)))
+                                flash("Artículo correctamente ajustado", category="success")
+
+                                return redirect(url_for('views.posts', num=num))
+
                     return render_template("P_config.html",
-                                           code=log_check(), poster=poster(),
-                                           num=int(num) - 1, state=user["role"])
+                                           code=log_check(), poster=poser,
+                                           num=int(num) - 1, state=user["role"], user=user)
             elif "del" in request.form:
                 with entries:
                     with entries.cursor() as cu:

@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, render_template
 import os
 
 
@@ -12,6 +12,19 @@ def create_app():
 
     from .views import views
     from .auth import auth
+
+
+    @app.errorhandler(404)
+    def page_not_found(error):
+        print(request.path)
+        return render_template("missing.html")
+
+    @app.errorhandler(500)
+    def page_not_found(error):
+        print(request.path)
+        return render_template("missing.html")
+
+
 
     app.register_blueprint(views, url_prefix="/")
     app.register_blueprint(auth, url_prefix="/")

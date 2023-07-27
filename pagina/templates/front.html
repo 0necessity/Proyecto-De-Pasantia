@@ -1,5 +1,9 @@
 {% extends "house.html" %} {% block title %}Inicio{% endblock %}
 {% block log %}{{code[0]|safe}}{% endblock %}
+{% block ini %}{{code[-1]|safe}}{% endblock %}
+{% block reg %}{{code[-2]|safe}}{% endblock %}
+
+
 {% block pfp %}{{code[1]|safe}}{% endblock %}
 
 

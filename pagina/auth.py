@@ -26,6 +26,7 @@ client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret
 
 auth = Blueprint("auth", __name__)
 
+
 def deco(token):
     try:
         apli = create_app()
@@ -79,8 +80,12 @@ def log_check():
                     <img src="data:image/png;base64,{encoded_image}" class="rounded-circle me-2 ms-auto">
                 </a>
                 """,
-                f'<img id="ppfp" src="data:image/png;base64,{encoded_image}" style="padding-right: 8px; border-radius: 20px">'
+                f'<img id="ppfp" src="data:image/png;base64,{encoded_image}" style="padding-right: 8px; border-radius: 20px">',
+                "", "", "", ""
             ]
+    if user_cookie is None:
+        menu_items.extend(["", "", "", '<a class="nav-item nav-link" id="signUp" href="/sign_up">Registrate</a>',
+                           '<a class="nav-item nav-link" id="login" href="/login">Inicia Sesión</a>'])
     return menu_items
 
 
@@ -181,6 +186,7 @@ def profile():
                                     SET fname = %s, emails = %s, rola = %s, lastname = %s, password = %s, photo = %s
                                     WHERE fname = %s;
                                 """, (fname, enmail, role, lname, password1, PHOTO, usuario["name"]))
+                                flash("Edición de perfil establecida correctamente", category="success")
 
                         token = jwt.encode({
                             'name': fname,
@@ -312,6 +318,8 @@ def continues():
 
 temp_lo_email = ''
 temp_pass_code = ''
+
+
 @auth.route("/password", methods=['POST', "GET"])
 def password():
     if request.method == "POST":
@@ -353,6 +361,7 @@ def password():
         return "<h1>MAIL SEND!</h1> <br /> <a href='http://127.0.0.1:5000/'>Regresar</a>"
     return render_template("password_send.html")
 
+
 @auth.route("/password/<numeros>", methods=['POST', 'GET'])
 def user_profile(numeros):
     if numeros == temp_pass_code:
@@ -375,7 +384,6 @@ def login():
     if request.method == "POST":
         lo_password = request.form.get("password")
         lo_email = request.form.get("email").lower()
-
 
         with connection:
             with connection.cursor() as cu:
@@ -482,7 +490,7 @@ def sign_up():
             flash("El tamaño de tu imagen de perfil es demasiado grande. Por favor selecciona una más pequeña",
                   category="error")
         elif not (photo[:4] == b'\xff\xd8\xff\xe0' or photo[:4] == b'\xff\xd8\xff\xe1' or photo[
-                                                                                         :4] == b'\x89PNG' or photo == b''):
+                                                                                          :4] == b'\x89PNG' or photo == b''):
             flash("Este tipo de archivo no es compatible, por favor asegúrate de subir un archivo PNG o JPEG",
                   category="error")
 
