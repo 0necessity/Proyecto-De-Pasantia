@@ -33,8 +33,10 @@
                 {% block log %}
                 {% endblock %}
                 <a class="nav-item nav-link" id="home" href="/">Inicio</a>
-                <a class="nav-item nav-link" id="login" href="/login">Inicia Sesión</a>
-                <a class="nav-item nav-link" id="signUp" href="/sign_up">Registrate</a>
+                {% block ini %}
+                {% endblock %}
+                {% block reg %}
+                {% endblock %}
 
             </div>
           </div>

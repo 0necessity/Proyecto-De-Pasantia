@@ -4,7 +4,6 @@ import email.charset
 import os
 import html
 from pagina import create_app
-import jwt
 from datetime import datetime, timedelta
 import pathlib
 import re
@@ -20,14 +19,19 @@ import random
 import string
 import psycopg2
 
+print()
+
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # to allow Http traffic for local dev
 GOOGLE_CLIENT_ID = "767012225869-o403codh716ib53pnug7pdhpmnqs7mid.apps.googleusercontent.com"
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 
 auth = Blueprint("auth", __name__)
 
+
+import jwt
 def deco(token):
     try:
+
         apli = create_app()
         payload = jwt.decode(token, apli.config['SECRET_KEY'], algorithms=['HS256'])
         return payload
@@ -81,6 +85,10 @@ def log_check():
                 """,
                 f'<img id="ppfp" src="data:image/png;base64,{encoded_image}" style="padding-right: 8px; border-radius: 20px">'
             ]
+
+    if user_cookie is None:
+        menu_items.extend(["", "", "", '<a class="nav-item nav-link" id="signUp" href="/sign_up">Registrate</a>',
+                           '<a class="nav-item nav-link" id="login" href="/login">Inicia Sesión</a>'])
     return menu_items
 
 
@@ -320,7 +328,9 @@ def password():
         global temp_lo_email
         temp_lo_email = request.form.get("email").lower()
 
+
         import smtplib
+        import dns.resolver
         from email.message import EmailMessage
 
         smtp_server = "smtp.gmail.com"
@@ -341,13 +351,27 @@ def password():
         password = "vydfcrcyaeathtmd"
 
         try:
+            domain = temp_lo_email.split("@")[1]
+            try:
+                mx_records = dns.resolver.query(domain, 'MX')
+                smtp_servers = str(mx_records[0].exchange)
+            except dns.resolver.NXDOMAIN:
+                return "The recipient's email domain does not exist."
+
+
             with smtplib.SMTP(smtp_server, smtp_port) as server:
                 server.starttls()
                 server.login(username, password)
                 server.send_message(msg)
+                print("Email sent successfully.")
 
-
-        except Exception as e:
+        except ConnectionRefusedError:
+            print("Failed to connect to the email server. The connection was refused.")
+        except smtplib.SMTPConnectError:
+            print("Failed to connect to the recipient's mail server.")
+        except smtplib.SMTPAuthenticationError:
+            print("Failed to authenticate with the sender's email server.")
+        except smtplib.SMTPException as e:
             print(f"Failed to send email. Error: {str(e)}")
 
         return "<h1>MAIL SEND!</h1> <br /> <a href='http://127.0.0.1:5000/'>Regresar</a>"

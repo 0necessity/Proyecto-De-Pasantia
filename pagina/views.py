@@ -62,8 +62,12 @@ def log_check():
                     <p><span style="color: white;">Hola, {named}</span></p>
                     <img src="data:image/png;base64,{encoded_image}" class="rounded-circle me-2 ms-auto">
                 </a>
-                """
+                """,
+                f""""""
             ]
+    if user_cookie is None:
+        menu_items.extend(["", "", "", '<a class="nav-item nav-link" id="signUp" href="/sign_up">Registrate</a>',
+                           '<a class="nav-item nav-link" id="login" href="/login">Inicia Sesión</a>'])
     return menu_items
 
 
@@ -282,7 +286,6 @@ def posts(num):
                         cu.execute("DELETE FROM posts WHERE id = %s;", (int(num),))
                         cu.execute("UPDATE posts SET id = id - 1 WHERE id > %s", (int(num),))
                         return redirect(url_for('views.home'))
-
     return render_template("products.html", code=log_check(), poster=poster(), num=int(num) - 1)
 
 
