@@ -1,4 +1,4 @@
-{% extends "house.html" %} {% block title %}Entrada a la tienda{% endblock %}
+{% extends "house.html" %} {% block title %}Configuracion de Producto{% endblock %}
 {% block log %}{{code[0]|safe}}{% endblock %}
 {% block ini %}{{code[-1]|safe}}{% endblock %}
 {% block reg %}{{code[-2]|safe}}{% endblock %}
@@ -20,6 +20,14 @@
       display: flex;
       justify-content: space-between;
   }
+
+
+  #forum .form-control {
+    color: black;
+    border: 1px solid black;
+
+}
+
 </style>
 
 
@@ -28,6 +36,7 @@
   <div class="form-group">
     <label for="title"></label>
     <input
+        value='{{poster["names"][num]}}'
       type="text"
       class="form-control input-two"
       id="title"
@@ -35,12 +44,13 @@
       placeholder="Introduzca el título"
     />
   </div>
-  <textarea class="form-control" placeholder="Introduzca una descripción" name="desc"></textarea>
+  <textarea class="form-control" placeholder="Introduzca una descripción" name="desc">{{poster["desc"][num]}}</textarea>
   <div id="twos">
     <div class="form-group">
       <label for="price"></label>
       <input
         type="number"
+        value='{{poster["price"][num]}}'
         class="form-control input-two"
         id="price"
         name="price"
@@ -55,12 +65,32 @@
         class="form-control"
         id="quantity"
         name="quantity"
+        value='{{poster["cuant"][num]}}'
         placeholder="Unidades"
       />
     </div>
       {% endif %}
 
   </div>
+
+    <!-- THIS IS WHERE THE OWNER OF THE PRODUCTS ARE EDITED,
+     CHANGE IT SO IT MATCHES THE BACKOFFICE GUIDE PARAMETROS-->
+  <div>
+    <label for="owner">Vendedor: </label>
+    <select id="owner" name="owner">
+        <option value='{{poster["owner"][num]}}'>{{poster["owner"][num]}}</option>
+        {% if poster["owner"][num] != user["name"] %}
+            <option value='{{user["name"]}}'>{{user["name"]}}</option>
+        {% endif %}
+
+        {% for i in poster["unq_ow"] %}
+            <option value="{{i}}">{{i}}</option>
+        {% endfor %}
+    </select>
+  </div>
+
+
+
   <div>
     <label for="categoria">Categorias</label>
     <select id="categoria" name="categoria">
@@ -135,6 +165,7 @@
       <input
         type="number"
         class="form-control"
+        value='{{poster["cuant"][num]}}'
         id="quantity"
         name="quantity"
         placeholder="quantity"
@@ -144,7 +175,7 @@
     <div id="buo">
   <button type="submit" name="subby" class="btn btn-primary">Continuar</button>
     {% if state == 'admin' %}
-      <button type="submit" name="del" class="btn btn-primary">ELIMINAR ENTRADA</button>
+      <button type="submit" name="del" class="btn btn-danger">ELIMINAR ENTRADA</button>
     {% endif %}
     </div>
 
