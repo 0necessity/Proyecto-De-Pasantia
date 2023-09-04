@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<style>
+
+*, ::after, ::before {
+    box-sizing: border-box;
+}
+    .cards {
+    background: #fff;
+    height: 25vw;
+    width: 23vw;
+    overflow: hidden;
+    box-shadow: 5px 8px 15px -10px rgba(0,0,0,0.25);
+}
+.card_image {
+    width: 100%;
+    height: 100%;
+}
+.card_image.loading {
+    width: 100%;
+    height: 30vw;
+}
+.loading {
+    position: relative;
+    background: #cccccc;
+}
+.loading:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    transform: translateX(-100px);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: loading 0.8s infinite;
+}
+@keyframes loading {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+.container {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+@media (min-width: 1200px) {
+  .container, .container-lg, .container-md, .container-sm, .container-xl {
+    max-width: 1140px;
+  }
+}
+
+@media (max-width: 800px) {
+    .cards {
+    height: 41vw;
+    width: 35vw;
+    }
+
+    .card_image.loading {
+    width: 100%;
+    height: 41vw;
+    }
+
+    .wrapper {
+    padding-left: 10vw;
+    }
+}
+
+@media (max-width: 689px) {
+    .cards {
+    height: 86vw;
+    width: 81vw;
+        margin-bottom: 45px;
+    }
+
+    .card_image.loading {
+    width: 100%;
+    height: 86vw;
+    }
+
+    .wrapper {
+    padding-left: 4vw;
+    padding-right: 15vw;
+    }
+}
+
+@media (min-width: 992px) {
+  .container, .container-lg, .container-md, .container-sm {
+    max-width: 960px;
+  }
+}
+
+@media (min-width: 800px) {
+    .grid-container {
+        grid-template-columns: repeat(6, 1fr) !important;
+    }
+}
+
+@media (min-width: 689px) {
+    .grid-container {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+  .container, .container-md, .container-sm {
+    max-width: 720px;
+  }
+}
+
+@media (min-width: 576px) {
+  .container, .container-sm {
+    max-width: 540px;
+  }
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    text-align: left;
+    background-color: hsl(159 74% 99% / 1) !important; }
+
+.wrapper {
+    padding-right: 38vw;
+}
+</style>
+<div id="nav">
+
+    <div class="pswp__preloader__icn">
+      <div class="pswp__preloader__cut">
+        <div class="pswp__preloader__donut"></div>
+      </div>
+    </div>
+
+<style>
+
+#nav {
+    margin-bottom: 117px;
+    display: flex;
+    flex-direction: row-reverse;
+    height: 76px;
+    background-color: #1c1f22!important;
+}
+
+
+:root {
+    --lol: 4;
+}
+
+
+
+.pswp__preloader__icn {
+    margin-top: 8px;
+    margin-right: 13px;
+    opacity:0.75;
+    width: calc(14px * var(--lol));
+    height: calc(14px * var(--lol));
+    -webkit-animation: clockwise 500ms linear infinite;
+    animation: clockwise 500ms linear infinite;
+}
+
+/* The idea of animating inner circle is based on Polymer loading indicator by Keanu Lee https://blog.keanulee.com/2014/10/20/the-tale-of-three-spinners.html */
+.pswp__preloader__cut {
+  position: relative;
+  width: calc(7px * var(--lol));
+  height: calc(14px * var(--lol));
+  overflow: hidden;
+
+    position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.pswp__preloader__donut--fake {
+   box-sizing: border-box;
+
+  width: calc(14px * var(--lol));
+	height: calc(14px * var(--lol));
+
+
+  border: 2px solid red;
+   border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+	background: none;
+	margin:0;
+}
+
+.pswp__preloader__donut {
+  box-sizing: border-box;
+
+  width: calc(14px * var(--lol));
+	height: calc(14px * var(--lol));
+
+
+  border: 2px solid #FFF;
+   border-radius: 50%;
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+
+    position: absolute;
+  top: 0;
+  left: 0;
+
+
+
+	position: absolute;
+  top: 0;
+  left: 0;
+
+	background: none;
+	margin:0;
+
+    -webkit-animation: donut-rotate 1000ms cubic-bezier(.4,0,.22,1) infinite;
+  animation: donut-rotate 1000ms cubic-bezier(.4,0,.22,1) infinite;
+
+}
+
+
+@-webkit-keyframes clockwise {
+  0% { -webkit-transform: rotate(0deg) }
+  100% { -webkit-transform: rotate(360deg) }
+}
+@keyframes clockwise {
+  0% { transform: rotate(0deg) }
+  100% { transform: rotate(360deg) }
+}
+@-webkit-keyframes donut-rotate {
+  0% { -webkit-transform: rotate(0) }
+  50% { -webkit-transform: rotate(-140deg) }
+  100% { -webkit-transform: rotate(0) }
+}
+@keyframes donut-rotate {
+  0% { transform: rotate(0) }
+  50% { transform: rotate(-140deg) }
+  100% { transform: rotate(0) }
+}
+
+    </style>
+
+</div>
+
+
+<div class="wrapper">
+<div class="container">
+<div class="grid-container">
+    <div class="grid-container">
+        <div class="cards">
+        <div class="card_image loading"></div>
+        </div>
+        <br />
+        <div class="cards">
+        <div class="card_image loading"></div>
+        </div>
+                <br />
+
+        <div class="cards">
+        <div class="card_image loading"></div>
+        </div>
+                <br />
+
+        <div class="cards">
+        <div class="card_image loading"></div>
+        </div>
+                <br />
+
+        <div class="cards">
+        <div class="card_image loading"></div>
+        </div>
+                <br />
+
+        <div class="cards">
+        <div class="card_image loading"></div>
+        </div>
+                <br />
+
+        <div class="cards">
+        <div class="card_image loading"></div>
+        </div>
+                <br />
+
+        <div class="cards">
+        <div class="card_image loading"></div>
+        </div>
+                <br />
+
+        <div class="cards">
+        <div class="card_image loading"></div>
+        </div>
+                <br />
+
+    </div>
+</div>
+</div>
+</div>
+  <script>
+      document.cookie = "check=exist; expires=Thu, 18 Dec 2024 12:00:00 UTC; path=/";
+      location.reload();
+  </script>
+
+</body>
+</html>

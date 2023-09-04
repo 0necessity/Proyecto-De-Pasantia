@@ -17,10 +17,52 @@
     aspect-ratio: 1/1;
   }
 
-  #dream_team {
+
+  #adding {
+    font-size: 2rem;
+    font-weight: bold;
+    position: relative;
+    top: -3px;
+  }
+/*  #laloa:hover {*/
+/*    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='22' ry='22' stroke='black' stroke-width='5' stroke-dasharray='6%2c 14' stroke-dashoffset='16' stroke-linecap='square'/%3e%3c/svg%3e");*/
+/*border-radius: 22px;*/
+/*  }*/
+
+  button {
+    border: none;
+    background: none;
+  }
+
+  #laloa {
+
+  width: 50px;
+  height: 50px;
+
+background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='100' ry='100' stroke='black' stroke-width='5' stroke-dasharray='6%2c 14' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+border-radius: 50px;
+
+
+  /*background-color: #3498db;*/
+  /*border: none;*/
+  /*border-radius: 8px;*/
+  /*color: white;*/
+  /*font-size: 24px;*/
+  /*cursor: pointer;*/
+  /*display: flex;*/
+  /*justify-content: center;*/
+  /*align-items: center;*/
+
+  }
+  .dream_team {
     display: flex;
+    z-index: 10;
     justify-content: space-between;
   }
+
+:root {
+  --back: #e6ebef;
+}
 
 .grid-container {
   display: grid;
@@ -30,17 +72,22 @@
 
 .names {
   color: #000;
+  z-index: 10;
+  position: relative;
   font-family: Arial, sans-serif;
   font-size: 1.5rem;
 }
 
 .grid-item {
-  border: 1px solid hwb(0 96% 15% / 1);
+  border: 2px solid #c7c8c8;
   padding: 10px;
   text-align: center;
   height: auto; /* Adjusted property */
   width: 23vw;
   box-sizing: border-box;
+  background: linear-gradient(#fff, #fff) top, linear-gradient(var(--back), var(--back)) bottom;
+  background-size: 100% 87%, 100% 50%;
+  background-repeat: no-repeat, no-repeat;
 }
 
 a {
@@ -53,7 +100,25 @@ a:hover {
 
 
 .grid-item:hover {
-    border: 2px solid black;
+    border: 3px solid black;
+}
+.coloring {
+  position: relative;
+}
+
+.Mirror {
+  background-color: var(--back);
+  position: absolute;
+  right: -10px;
+  left: -10px;
+  bottom: -10px;
+  top: 3px;
+  height: 100%;
+}
+@supports (height: -webkit-fill-available) {
+  .Mirror {
+    height: -webkit-fill-available
+  }
 }
 
 .grid-item img {
@@ -81,6 +146,9 @@ a:hover {
   width: 34.5vw;
 }
 }
+p {
+  z-index: 10;
+}
 
 @media (max-width: 690px) {
 .grid-container {
@@ -105,15 +173,25 @@ width: 86.25vw;
   <div class="grid-item">
     <a href="http://127.0.0.1:5000/posts/{{poster['id'][i]}}">
     <img id="yaya" src="data:image/png;base64, {{poster['img'][i][0]}}">
+
+    <div class="coloring">
+      <div class="Mirror"></div>
+      <div class="wrapper">
                 <p class="names">{{ poster["names"][i] }}</p>
-      <div id="dream_team">
-    <p><span style="font-size: 0.5rem; position: relative; bottom: 0.25rem;">US$</span>{{poster["price"][i]}}<span style="font-size: 0.5rem; position: relative; bottom: 0.25rem;">00</span></p>
-      <p>{{ poster["cuant"][i] }} Unidades</p>
+
+        <div class="dream_team">
+          <p><span style="font-size: 0.5rem; position: relative; bottom: 0.25rem;">US$</span>{{poster["price"][i]}}<span style="font-size: 0.5rem; position: relative; bottom: 0.25rem;">00</span></p>
+          <p>{{ poster["cuant"][i] }} Unidades</p>
+        </div>
       </div>
+    </div>
 
     </a>
   </div>
     <br />
 {% endfor %}
 </div>
+  <script>
+      document.cookie = "check=; expires=Thu, 18 Dec 2014 12:00:00 UTC; path=/";
+  </script>
 {% endblock %}

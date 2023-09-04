@@ -6,42 +6,114 @@
 
 
 {% block cont %}
-<!-- CHANGE THIS <STYLE> TO THE STATIC DIRECTORY LATER -->
 <style>
-#forum {
-  border-bottom: 1px solid black;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
+
+#wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+
+#container {
+  max-width: 600px;
+  width: 100%;
+    border: 1px solid #d8dee4;
+    background: #f6f8fa;
+  padding: 20px 100px 20px 100px;
+  border-radius: 20px;
+}
+
+.space {
+  margin-top:15px;
+}
+
+label.space {
+  font-size: 0.9rem;
+}
+
+button.space {
+  width: 100%;
+  margin-top:50px;
+}
+
+input.space{
+  margin-top:1px;
+  font-size: 1.3rem;
+  padding: 25px 10px 25px 10px;
+  background-color: #fff;
+  color: black;
+}
+
+
+h3.space {
+  font-size: 3rem;
+
+}
+
 </style>
+<div id="wrapper">
+  <div id="container">
 <form method="POST" id="forum">
-  <h3 align="center">Iniciar sesión</h3>
+  <h3 align="center" class="space"><b>Iniciar sesión</b></h3>
   <div class="form-group">
-    <label for="email">Correo electrónico</label>
+    <label for="email" class="space">Correo electrónico</label>
     <input
       type="email"
-      class="form-control"
+      class="form-control space"
       id="email"
       name="email"
       placeholder="Introduzca su correo"
     />
   </div>
   <div class="form-group">
-    <label for="password">Contraseña</label>
+    <label for="password" class="space">Contraseña</label>
     <input
       type="password"
-      class="form-control"
+      class="form-control space"
       id="password"
       name="password"
       placeholder="Introduzca su contraseña"
     />
   </div>
   <br />
-  <button type="submit" class="btn btn-primary">Continuar</button>
+  <button type="submit" class="btn btn-primary space">Continuar</button>
   <br />
-  <p>¿Ha olvidado su <a href="http://127.0.0.1:5000/password">contraseña?</a></p>
+  <p class="space">¿Ha olvidado su <a class="space" href="http://127.0.0.1:5000/password">contraseña?</a></p>
 
 </form>
-<p>O inicie sesión con su <a href="http://127.0.0.1:5000/logan">cuenta de Google</a></p>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
 
+        #Google_btn {
+            background-color: #fafcfe;
+            border: 1px solid rgba(0, 0, 0, 0.17);
+            border-radius:35px;
+            height: 35px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        #Google_btn:hover {
+            cursor: pointer;
+            background-color: #eaecee
+        }
+        #Google_btn svg {
+            margin-left: 20px;
+        }
+        #Google_btn p {
+            position: relative;
+            top: 8px;
+            font-weight: bold;
+            margin-left: 35px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+
+    </style>
+    <div id="Google_btn" onclick="window.location.href='http://127.0.0.1:5000/OAuth_redirect'">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" height="24" width="24"><path fill="#4285F4" d="M20.822 12.207c0-.612-.05-1.227-.155-1.829h-8.49v3.466h4.862a4.166 4.166 0 01-1.8 2.735v2.248h2.901c1.703-1.567 2.682-3.882 2.682-6.62z"></path><path fill="#34A853" d="M12.178 21c2.427 0 4.474-.797 5.965-2.173l-2.9-2.248c-.807.549-1.848.86-3.062.86-2.348 0-4.339-1.584-5.053-3.714H4.135v2.318A9 9 0 0012.178 21z"></path><path fill="#FBBC04" d="M7.125 13.725a5.39 5.39 0 010-3.446V7.961h-2.99a9.007 9.007 0 000 8.082l2.99-2.318z"></path><path fill="#EA4335" d="M12.178 6.562a4.89 4.89 0 013.452 1.35l2.57-2.57A8.65 8.65 0 0012.178 3a8.998 8.998 0 00-8.043 4.96l2.99 2.318c.71-2.133 2.705-3.717 5.053-3.717z"></path></svg>
+        <p>O continúe con Google</p>
+    </div>
+</div>
+  </div>
 {% endblock %}

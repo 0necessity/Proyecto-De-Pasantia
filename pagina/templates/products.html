@@ -5,19 +5,30 @@
 {% block pfp %}{{code[1]|safe}}{% endblock %}
 {% block cont %}
 <style>
-  @media (max-width: 700px) {
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat&family=Poppins:wght@500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
+  @media (max-width: 770px) {
     #cuerpo {
-      justify-content: center !important;
+      justify-content: left;
       flex-wrap: wrap;
     }
     .content {
-      min-width: 1px !important;
+      min-width: 200px !important;
+      min-height: 250px !important;
+      height: 450px !important;
+    }
+    #teto {
+        padding-left: 0;
     }
 
   }
-  p {
-    padding-left: 4rem;
+
+  h1 {
+    font-family: 'Poppins', sans-serif;
   }
+
+
   .left {
   display: flex;
   justify-content: center; /* Center horizontally */
@@ -29,18 +40,28 @@
   }
   .right {
   display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
+  justify-content: center;
+  align-items: center;
   }
   .rrright {
   position: relative;
   bottom: 0.16rem;
   }
+
+  p, li {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .yaya {
+    width: 100%;
+    height: auto;
+  }
+
   .content {
     /*put flex-wrap: wrap withe media later to #cuerpo */
-    height: 400px;/* CHANGE THIS TWO LATER */
-    width: 400px;/* CHANGE THIS TWO LATER */
-    min-width: 400px;
+    height: 650px;
+    width: 650px;
+    min-width: 600px;
     overflow: hidden;
     position: relative;
   }
@@ -67,20 +88,42 @@
     cursor: pointer;
 
   }
+  ul, ol {
+      padding-left: 16px !important;
+      padding-bottom: 0 !important;
+      margin-bottom: 0 !important;
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+  }
 
   .content .slide{
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
+    height: 85px;
     width: 45px;
     border: 2px solid white;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0,0,0,0.35);
 
     cursor: pointer;
 
   }
   .content .slide:hover{
-    background: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.3);
+  }
+  /* -Arrow */
+  .content .slide span{
+    color: white;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+    .content .slide:hover span b{
+    color: white;
+    text-shadow: 0 0 1.5rem #000;
+
   }
 
   .slide span{
@@ -91,18 +134,75 @@
   .content .right{
     right: 0;
   }
+
+
+
 #cuerpo {
   display: flex;
-  justify-content: space-between;
+  justify-content: left;
 }
+
+#desc {
+  text-align: justify;
+  }
+
 #teto {
-  text-align: right;
+  padding-left: 35px;
+  text-align: left;
   display: block;
   word-break: break-word;
 }
 
+#icon_full {
+  display: none;
+}
+
+
+@import url('https://fonts.googleapis.com/css2?family=Quicksand&display=swap');
+
+
+button {
+  font-size: 2rem !important;
+  font-weight: bold !important;
+  font-family: 'Quicksand', sans-serif !important;
+}
+form {
+  display: block !important;
+}
+
+form span {
+  position: relative;
+  top: 3px;
+}
+
+div.container form#tbh button.btn-primary {
+  margin-bottom: 12px;
+  padding-right: 135px ;
+  padding-left: 25px ;
+  border-radius: 10px;
+  color: #000;
+  background-color: #e3e3e3 ;
+  border-color: #cbc9c9 ;
+}
+div.container form#tbh button.btn-primary:hover {
+  color: #000;
+  background-color: rgba(227, 227, 227, 0.70) ;
+  border-color: #cbc9c9 ;
+}
+
+form button:hover #icon_full {
+  display: inline;
+}
+
+form button:hover #icon_empty {
+  display: none;
+}
 
 </style>
+
+
+
+
 <script>
   var indexVaulue =1;
   showImg(indexVaulue);
@@ -118,10 +218,10 @@
       img[i].style.display = "none";
     }
     for(i=0; i <sliders.length; i++){
-      sliders[i].style.background = "rgba(0,0,0,0.2)";
+      sliders[i].style.background = "rgba(0,0,0,0.35)";
     }
       img[indexVaulue-1].style.display = "block";
-      sliders[indexVaulue-1].style.background = "white";
+      sliders[indexVaulue-1].style.background = "#dfdfdf";
 
   }
 
@@ -165,9 +265,12 @@
     {% else %}
     <p>Inventario: Unidades agotadas</p>
     {% endif %}
-    <p id="desc">{{poster["desc"][num]}}</p>
+    <div id="desc">{{poster["desc"][num]|safe}}</div>
 
   </div>
 </div>
 
+<script>
+    document.cookie = "check=; expires=Thu, 18 Dec 2014 12:00:00 UTC; path=/";
+</script>
 {% endblock %}

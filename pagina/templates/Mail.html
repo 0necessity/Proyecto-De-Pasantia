@@ -1,0 +1,12 @@
+{% extends "house.html" %} {% block title %}Sent Mail{% endblock %}
+
+
+{% block cont %}
+<h1>Mail Enviado</h1>
+<p>Redireccionando...</p>
+
+<script>
+    setTimeout(function() { window.location.href = '/'; }, 3000);
+</script>
+
+{% endblock %}

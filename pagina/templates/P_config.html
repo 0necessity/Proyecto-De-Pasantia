@@ -5,36 +5,145 @@
 {% block pfp %}{{code[1]|safe}}{% endblock %}
 
 {% block cont %}
-<h1>EDITAR PRODUCTO</h1>
+
+
+
 
 <style>
+
+    /* WebKit Scrollbar Styles */
+/* Note: This is specific to WebKit-based browsers */
+/* You can use vendor prefixes for other browsers, but support may vary */
+
+/* Track */
+
+
+
+
+textarea.form-control {
+    padding-bottom: 150px;
+}
   #price {
   }
-  #twos {
+
+  .twos .form-group {
+      margin: 0;
+    width: 45%;
+}
+
+  #owner {
+      margin-right: 2rem;
+  }
+
+
+  .twos {
       display: flex;
+      justify-content: space-between;
+
+  }
+  #image-input {
+      padding-top: 19px;
   }
   .input-two {
   flex: 1;
   }
+
+/* Apply the same style to both textareas and inputs when focused */
+textarea:focus, input:focus {
+    border-color: #007bff !important; /* Change this color to the desired focus color */
+    outline: none !important;
+    transition: border-color 0.5s/* Remove the default outline */
+    /* Add any other styling you want */
+}
+
+
   #buo {
       display: flex;
+      padding-top: 2rem;
       justify-content: space-between;
   }
+  .form-group {
+    width: 100%;
+      margin: 0;
+}
+#wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#alignment {
+    max-width: 750px;
+    width: 100%;
+    position: relative;
+    bottom: 40px;
+}
+#container {
+    border: 1px solid #d8dee4;
+    background: #f6f8fa;
+    padding: 20px 25px 20px 25px;
+    border-radius: 5px;
+}
 
+select {
+    font-size: 1.08em;
+}
+
+button, select {
+    border: 1px solid #bdbdbd;
+    padding: 6px;
+    border-radius: 6px;
+}
+#announcement {
+    border-bottom: solid;
+    color: black;
+}
 
   #forum .form-control {
     color: black;
-    border: 1px solid black;
+    border: 1px solid #bdbdbd;
 
 }
-
+  #Ve_y_Ca {
+          justify-content: space-between !important;
+  }
+label.sub_title {
+    font-size: 0.9rem;
+    margin: 0.9rem 0 0;
+}
 </style>
+
+<style>
+    #arrow {
+    position: relative;
+    top: 50px;
+    right: 50px;
+}
+    #arrow svg {
+        border: solid 2px #cfd3da;
+        border-radius: 20px;
+    }
+    #arrow svg:hover {
+    cursor: pointer;
+    border: solid 2px #000000;
+    background-color: rgba(134, 152, 155, 0.15);
+    padding: 4px;
+}
+</style>
+
+<div id="wrapper">
+    <div id="alignment">
+    <div id="arrow">
+        <svg onclick='window.location.href = "http://127.0.0.1:5000/posts/{{num + 1}}"' xmlns="http://www.w3.org/2000/svg" height="40" viewBox="0 -960 960 960" width="40"><path d="m333.999-427.334 221.667 222.667-74.999 74-350-350L480-830l75.999 74.667-222 222H830v105.999H333.999Z"/></svg>
+    </div>
+    <h1 id="announcement">EDITAR PRODUCTO</h1>
+
+<div id="container">
 
 
 <form method="POST" id="forum" enctype="multipart/form-data">
     {% if state == 'admin' or state == 'Editor' %}
   <div class="form-group">
-    <label for="title"></label>
+      <label for="title" class="sub_title" style="margin: 0;">Titulo:</label>
     <input
         value='{{poster["names"][num]}}'
       type="text"
@@ -44,10 +153,11 @@
       placeholder="Introduzca el título"
     />
   </div>
+    <label class="sub_title">Descripción:</label>
   <textarea class="form-control" placeholder="Introduzca una descripción" name="desc">{{poster["desc"][num]}}</textarea>
-  <div id="twos">
+  <div class="twos" >
     <div class="form-group">
-      <label for="price"></label>
+      <label for="price" class="sub_title">Precio:</label>
       <input
         type="number"
         value='{{poster["price"][num]}}'
@@ -58,25 +168,27 @@
       />
     </div>
       {% if state == "admin" %}
-    <div class="form-group">
-      <label for="quantity"></label>
-      <input
-        type="number"
-        class="form-control"
-        id="quantity"
-        name="quantity"
-        value='{{poster["cuant"][num]}}'
-        placeholder="Unidades"
-      />
-    </div>
+        <div class="form-group">
+            <label for="quantity" class="sub_title">Cantidad:</label>
+          <input
+            type="number"
+            class="form-control"
+            id="quantity"
+            name="quantity"
+            value='{{poster["cuant"][num]}}'
+            placeholder="Unidades"
+          />
+        </div>
       {% endif %}
 
   </div>
 
     <!-- THIS IS WHERE THE OWNER OF THE PRODUCTS ARE EDITED,
      CHANGE IT SO IT MATCHES THE BACKOFFICE GUIDE PARAMETROS-->
+    <div class="twos" style="justify-content: flex-start;">
   <div>
-    <label for="owner">Vendedor: </label>
+    <label for="owner" class="sub_title">Vendedor: </label>
+      <br />
     <select id="owner" name="owner">
         <option value='{{poster["owner"][num]}}'>{{poster["owner"][num]}}</option>
         {% if poster["owner"][num] != user["name"] %}
@@ -90,10 +202,19 @@
   </div>
 
 
-
   <div>
-    <label for="categoria">Categorias</label>
+    <label for="categoria" class="sub_title">Categorias:</label>
+      <br />
     <select id="categoria" name="categoria">
+        {% set cate_opt = ['Electrónicos', 'Computadoras', 'Smart Home', 'Arte y Artesanías', 'Automotriz', 'Bebé', 'Belleza y Cuidado Personal', 'Hogar y Cocina', 'Salud y Hogar', 'Industrial y Científico', 'Equipaje', 'Películas y Televisión', 'Software', 'Deportes y Aire Libre', 'Herramientas y Mejoramiento del Hogar', 'Juguetes y juegos', 'Videojuegos', 'Moda y vestimenta' ] %}
+        <option value='{{poster["cate"][num]}}' selected>{{poster["cate"][num]}}</option>
+        {% for option in cate_opt %}
+            {% if option != poster["cate"][num] %}
+                <option value="{{option}}">{{option}}</option>
+            {% endif %}
+        {% endfor %}
+
+        <!--
         <option value="Electrónicos">Electrónicos</option>
         <option value="Computadoras">Computadoras</option>
         <option value="Smart Home">Smart Home</option>
@@ -112,8 +233,10 @@
         <option value="Juguetes y juegos">Juguetes y juegos</option>
         <option value="Videojuegos">Videojuegos</option>
         <option value="Moda y vestimenta">Moda y vestimenta</option>
+        -->
     </select>
   </div>
+        </div>
     <div class="form-group">
         <input type="file" accept="image/*" multiple id="image-input"  name="photos">
             <div id="preview-container"></div>
@@ -160,8 +283,20 @@
   </div>
   {% endif %}
   {% if state == "Administrador de inventario" %}
+
+    <style>
+        #alignment {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        #buo {
+            padding-bottom: 1rem;
+        }
+    </style>
+
     <div class="form-group">
-      <label for="quantity"></label>
+            <label for="quantity" class="sub_title">Cantidad:</label>
       <input
         type="number"
         class="form-control"
@@ -180,4 +315,12 @@
     </div>
 
 </form>
+</div>
+</div>
+</div>
+
+<script>
+    document.cookie = "check=; expires=Thu, 18 Dec 2014 12:00:00 UTC; path=/";
+    document.cookie = "cf_check=; expires=Thu, 18 Dec 2014 12:00:00 UTC; path=/";
+</script>
 {% endblock %}

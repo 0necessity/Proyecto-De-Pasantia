@@ -10,38 +10,96 @@
 
 <style>
 #forum {
-  border-bottom: 1px solid black;
-  margin-bottom: 1rem;
+  margin-bottom: 0.7rem;
   padding-bottom: 1rem;
 }
+#wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#container {
+    max-width: 600px;
+    width: 100%;
+    border: 1px solid #d8dee4;
+    background: #f6f8fa;
+    padding: 20px 100px 20px 100px;
+    border-radius: 20px;
+}
+
+.space {
+    margin-top: 0;
+}
+
+.space select {
+    font-size: 1.25rem;
+        border: 1px solid #bdbdbd;
+    border-radius: 4px;
+    padding: 3px 25px 3px 10px;
+}
+
+
+label.space {
+  font-size: 0.9rem;
+}
+
+#age_selector {
+    display: flex;
+    justify-content: space-between;
+}
+
+button.space {
+  width: 100%;
+  margin-top:50px;
+}
+
+.spacee {
+}
+
+input.space{
+  margin-top:1px;
+  font-size: 1.3rem;
+  padding: 25px 10px 25px 10px;
+  background-color: #fff;
+  color: black;
+}
+
+
+h3 {
+  font-size: 3rem;
+
+}
 </style>
+<div id="wrapper">
+<div id="container">
 <form method="POST" enctype="multipart/form-data" ID="forum">
-  <h3 align="center">Registrarme</h3>
+  <h3 align="center" class="space"><b>Registrarme</b></h3>
   <div class="form-group">
-    <label for="email">Correo electrónico</label>
+    <label for="email" class="space">Correo electrónico</label>
     <input
       type="email"
-      class="form-control"
+      class="form-control space"
       id="email"
       name="email"
       placeholder="Introduzca su correo"
     />
   </div>
   <div class="form-group">
-    <label for="firstName">Nombre</label>
+    <label for="firstName" class="space">Nombre</label>
     <input
       type="text"
-      class="form-control"
+      class="form-control space"
       id="firstName"
       name="firstName"
       placeholder="Introduzca su nombre"
     />
   </div>
-  <div class="form-group">
-    <label for="lastName">Apellido</label>
+  <div class="form-group" >
+    <label for="lastName" class="space">Apellido</label>
     <input
       type="text"
-      class="form-control"
+      class="form-control space"
       id="lastName"
       name="lastName"
       placeholder="Introduzca su apellido"
@@ -49,28 +107,28 @@
   </div>
 
   <div class="form-group">
-    <label for="password1">Contraseña</label>
+    <label for="password1" class="space">Contraseña</label>
     <input
       type="password"
-      class="form-control"
+      class="form-control space"
       id="password1"
       name="password1"
       placeholder="Introduzca su contraseña"
     />
   </div>
   <div class="form-group">
-    <label for="password2">Confirmación de contraseña</label>
+    <label for="password2" class="space">Confirmación de contraseña</label>
     <input
       type="password"
-      class="form-control"
+      class="form-control space"
       id="password2"
       name="password2"
       placeholder="Confirme su contraseña"
     />
   </div>
   <div class="form-group">
-    <label for="picture">Suba su foto de perfil:</label>
-        <input type="file" name="image" id="image" onchange="previewImage(event)">
+    <label for="picture" class="space">Suba su foto de perfil</label>
+        <input type="file" name="image" id="image" class="spacee" onchange="previewImage(event)">
         <img id="preview">
     <script>
         function previewImage(event) {
@@ -88,15 +146,18 @@
     </style>
   </div>
 
-  <div>
-    <label for="day">Día:</label>
+  <div class="space">
+          <label for="day" class="space" style="margin-top: 10px">Fecha de nacimiento</label>
+      <div id="age_selector">
     <select id="day" name="day">
+          <option value="" disabled selected>Día</option>
         {% for day in range(1, 32) %}
             <option value="{{day}}">{{day}}</option>
         {% endfor %}
     </select>
-    <label for="month">Meses:</label>
+    <label for="month"></label>
     <select id="month" name="month">
+        <option value="" disabled selected>Meses</option>
         <option value="1">Enero</option>
         <option value="2">Febrero</option>
         <option value="3">Marzo</option>
@@ -110,27 +171,56 @@
         <option value="11">Noviembre</option>
         <option value="12">Diciembre</option>
     </select>
-    <label for="year">Año:</label>
+    <label for="year"></label>
     <select id="year" name="year">
+        <option value="" disabled selected>Años</option>
         {% for year in y %}
             <option value="{{year}}">{{year}}</option>
         {% endfor %}
     </select>
 
   </div>
-
-  <div class="form-group">
-    <label for="role">Rol:</label>
-     <select id="role" name="role">
-        <option value="admin">Administrador</option>
-        <option value="Editor">Editor</option>
-        <option value="Administrador de inventario">Administrador de inventario</option>
-        <option value="Supervisor">Supervisor</option>
-     </select>
   </div>
-  <br />
-  <button type="submit" value="Upload" class="btn btn-primary">Continuar</button>
-</form>
-<p>O inicie sesión con su <a href="http://127.0.0.1:5000/logan">cuenta de Google</a></p>
 
+  <br />
+  <button type="submit" value="Upload" class="btn btn-primary space">Continuar</button>
+</form>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+
+        #Google_btn {
+            background-color: #fafcfe;
+            border: 1px solid rgba(0, 0, 0, 0.17);
+            border-radius:35px;
+            height: 35px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        #Google_btn:hover {
+            cursor: pointer;
+            background-color: #eaecee
+        }
+        #Google_btn svg {
+            margin-left: 20px;
+        }
+        #Google_btn p {
+            position: relative;
+            top: 8px;
+            font-weight: bold;
+            margin-left: 35px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+
+    </style>
+    <div id="Google_btn" onclick="window.location.href='http://127.0.0.1:5000/OAuth_redirect'">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" height="24" width="24"><path fill="#4285F4" d="M20.822 12.207c0-.612-.05-1.227-.155-1.829h-8.49v3.466h4.862a4.166 4.166 0 01-1.8 2.735v2.248h2.901c1.703-1.567 2.682-3.882 2.682-6.62z"></path><path fill="#34A853" d="M12.178 21c2.427 0 4.474-.797 5.965-2.173l-2.9-2.248c-.807.549-1.848.86-3.062.86-2.348 0-4.339-1.584-5.053-3.714H4.135v2.318A9 9 0 0012.178 21z"></path><path fill="#FBBC04" d="M7.125 13.725a5.39 5.39 0 010-3.446V7.961h-2.99a9.007 9.007 0 000 8.082l2.99-2.318z"></path><path fill="#EA4335" d="M12.178 6.562a4.89 4.89 0 013.452 1.35l2.57-2.57A8.65 8.65 0 0012.178 3a8.998 8.998 0 00-8.043 4.96l2.99 2.318c.71-2.133 2.705-3.717 5.053-3.717z"></path></svg>
+        <p>O continúe con Google</p>
+    </div>
+
+
+</div>
+</div>
 {% endblock %}
