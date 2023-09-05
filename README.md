@@ -25,7 +25,10 @@ git clone https://github.com/0necessity/Proyecto-De-Pasantia.git
 ```
 
 
-2- Navega hasta el directorio del proyecto.
+2- Navega hasta el directorio del proyecto o utilize
+```bash
+ cd Proyecto-De-Pasantia
+```
 
 
 3- Crea un entorno virtual con el comando
