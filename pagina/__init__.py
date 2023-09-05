@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 import os
 
 def create_app():
@@ -12,12 +12,12 @@ def create_app():
     @app.errorhandler(404)
     def page_not_found(error):
         print(request.path)
-        return "NOt found 404"
+        return render_template("missing.html")
 
     @app.errorhandler(500)
     def page_not_found(error):
         print(request.path)
-        return "NOt found 500"
+        return render_template("missing.html")
 
     app.register_blueprint(views, url_prefix="/")
     app.register_blueprint(auth, url_prefix="/")
