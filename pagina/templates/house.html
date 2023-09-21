@@ -57,19 +57,78 @@ body {
     {% if messages %}
         {% for category, message in messages %}
             {% if category == "error" %}
-                <div class="alert alert-danger alert-dismissable fade show">
+                <div id="myAlert" class="myAlert alert alert-danger alert-dismissable fade show">
                     {{ message }}
                     <button type="button" class="close" data-dismiss="alert">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+
+                <style>
+                /* CSS to add a transition effect for opacity */
+                .fade-out {
+                    opacity: 0.3;
+                    transition: opacity 2s ease-in-out; /* Adjust the duration as needed */
+                }
+                </style>
+                <script>
+                // Get a reference to the alert element
+                const alertElement = document.getElementById('myAlert');
+
+                // Define the duration in milliseconds (e.g., 2000ms for 2 seconds)
+                const duration = 2500;
+
+                // Function to gradually fade out and remove the alert
+                function fadeOutAndRemoveAlert() {
+                alertElement.classList.add('fade-out'); // Apply the fade-out CSS class
+
+                // After the animation is complete, remove the alert
+                setTimeout(() => {
+                    alertElement.style.display = 'none'; // Hide the alert
+                }, 2000); // Should match the duration of the CSS transition
+                }
+
+                // Set a timeout to call the fadeOutAndRemoveAlert function after the duration
+                setTimeout(fadeOutAndRemoveAlert, duration);
+                </script>
+
             {% else %}
-                <div class="alert alert-success alert-dismissable fade show">
+                <div id="myAlert" class="myAlert alert alert-success alert-dismissable fade show">
                     {{ message }}
                     <button type="button" class="close" data-dismiss="alert">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+
+                <style>
+                /* CSS to add a transition effect for opacity */
+                .fade-out {
+                    opacity: 0.3;
+                    transition: opacity 2s ease-in-out; /* Adjust the duration as needed */
+                }
+                </style>
+
+                <script>
+                const duration = 2500;
+                // Get a reference to the alert element
+                const alertElement = document.getElementById('myAlert');
+
+                // Define the duration in milliseconds (e.g., 2000ms for 2 seconds)
+
+                // Function to gradually fade out and remove the alert
+                function fadeOutAndRemoveAlert() {
+                    alertElement.classList.add('fade-out'); // Apply the fade-out CSS class
+
+                    // After the animation is complete, remove the alert
+                    setTimeout(() => {
+                        alertElement.style.display = 'none'; // Hide the alert
+                    }, 2000); // Should match the duration of the CSS transition
+                }
+
+                // Set a timeout to call the fadeOutAndRemoveAlert function after the duration
+                setTimeout(fadeOutAndRemoveAlert, duration);
+                </script>
+
             {% endif %}
         {% endfor %}
     {% endif %}
@@ -96,5 +155,7 @@ body {
       integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
       crossorigin="anonymous"
     ></script>
+<br />
+<br />
 </body>
 </html>

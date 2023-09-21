@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+
+#Google_btn {
+    background-color: #fafcfe;
+    border: 1px solid rgba(0, 0, 0, 0.17);
+    border-radius:35px;
+    height: 35px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+#Google_btn:hover {
+    cursor: pointer;
+    background-color: #eaecee
+}
+#Google_btn svg {
+    margin-left: 20px;
+}
+#Google_btn p {
+    position: relative;
+    top: 8px;
+    font-weight: bold;
+    margin-left: 35px;
+    font-family: 'Poppins', sans-serif;
+}
+
+
+#wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#container {
+  max-width: 600px;
+  width: 100%;
+    border: 1px solid #d8dee4;
+    background: #f6f8fa;
+  padding: 20px 100px 20px 100px;
+  border-radius: 20px;
+}
+
+.space {
+  margin-top:15px;
+}
+
+label.space {
+  font-size: 0.9rem;
+}
+
+button.space {
+  width: 100%;
+  margin-top:50px;
+}
+
+input.space{
+  margin-top:1px;
+  font-size: 1.3rem;
+  padding: 25px 10px 25px 10px;
+  background-color: #fff;
+  color: black;
+}
+
+
+h3.space {
+  font-size: 3rem;
+
+}

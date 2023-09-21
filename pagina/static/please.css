@@ -62,7 +62,7 @@
 
 
 .link img {
-    height: 60px; /* set the max-height of the image to 100% of the parent container */
+    height: 60px;
 }
 
 body {
@@ -89,38 +89,46 @@ body {
     text-align: end;
 }
 
-#tbh {
+#btn_wrapper {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
+    margin-bottom: 10px;
 }
+
+@media (max-width: 690px) {
+#btn_wrapper {
+    justify-content: center !important;
+}
+}
+
 .bg-darker {
     background-color: #1c1f22!important;
 }
 
-#ppfp {
+#profile_picture {
   width: 150px;
   height: 150px;
   flex-shrink: 0;
 }
-#oh_my_gah input {
+#sidebar input {
   flex-grow: 1;
 }
-#oh_my_gah form {
+#sidebar form {
     flex-wrap: wrap;
     padding-left: 10px;
     border-left: black solid;
 
 }
 
+#sidebar {
+  display: flex;
+  flex-wrap: wrap;
+}
 
-#pasi {
+#passw_wrapper {
     display: inline-flex;
     align-items: center;
 }
-#pasi button {
+#passw_wrapper button {
     margin: 0.5rem;
-}
-#oh_my_gah {
-  display: flex;
-  flex-wrap: wrap;
 }

@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&family=Poppins:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
+  @media (max-width: 770px) {
+    #cuerpo {
+      justify-content: left;
+      flex-wrap: wrap;
+    }
+    .content {
+      min-width: 200px !important;
+      min-height: 250px !important;
+      height: 450px !important;
+    }
+    #desc_area {
+        padding-left: 0;
+    }
+
+  }
+
+  h1 {
+    font-family: 'Poppins', sans-serif;
+  }
+
+
+  .left {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  }
+  .left_btn {
+  position: relative;
+  bottom: 0.16rem;
+  }
+  .right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  }
+  .right_btn {
+  position: relative;
+  bottom: 0.16rem;
+  }
+
+  p, li {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .carousel_imgs {
+    width: 100%;
+    height: auto;
+  }
+
+  .content {
+    /*put flex-wrap: wrap withe media later to #cuerpo */
+    height: 650px;
+    width: 650px;
+    min-width: 600px;
+    overflow: hidden;
+    position: relative;
+  }
+  .content .images {
+    height: 100%;
+    width: 100%;
+  }
+  .images img{
+    height: 100%;
+    width: 100%;
+  }
+  .btm-sliders {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    display: flex;
+    transform: translateX(-50%);
+  }
+  .btm-sliders span{
+    height: 15px;
+    width: 50px;
+    border: 2px solid white;
+    margin: 0 3px;
+    cursor: pointer;
+
+  }
+  ul, ol {
+      padding-left: 16px !important;
+      padding-bottom: 0 !important;
+      margin-bottom: 0 !important;
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+  }
+
+  .content .slide{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 85px;
+    width: 45px;
+    border: 2px solid white;
+    background: rgba(0,0,0,0.35);
+
+    cursor: pointer;
+
+  }
+  .content .slide:hover{
+    background: rgba(255,255,255,0.3);
+  }
+  /* -Arrow */
+  .content .slide span{
+    color: white;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+    .content .slide:hover span b{
+    color: white;
+    text-shadow: 0 0 1.5rem #000;
+
+  }
+
+  .slide span{
+    font-size: 35px;
+    color: white;
+    line-height: 41px;
+  }
+  .content .right{
+    right: 0;
+  }
+
+
+
+#cuerpo {
+  display: flex;
+  justify-content: left;
+}
+
+#desc {
+  text-align: justify;
+  }
+
+#desc_area {
+  padding-left: 35px;
+  text-align: left;
+  display: block;
+  word-break: break-word;
+}
+
+#icon_full {
+  display: none;
+}
+
+
+@import url('https://fonts.googleapis.com/css2?family=Quicksand&display=swap');
+
+
+button {
+  font-size: 2rem !important;
+  font-weight: bold !important;
+  font-family: 'Quicksand', sans-serif !important;
+}
+form {
+  display: block !important;
+}
+
+form span {
+  position: relative;
+  top: 3px;
+}
+
+div.container form#btn_wrapper button.btn-primary {
+  margin-bottom: 2px;
+  padding-right: 135px ;
+  padding-left: 25px ;
+  border-radius: 10px;
+  color: #000;
+  background-color: #e3e3e3 ;
+  border-color: #cbc9c9 ;
+}
+div.container form#btn_wrapper button.btn-primary:hover {
+  color: #000;
+  background-color: rgba(227, 227, 227, 0.60) ;
+  border-color: #cbc9c9 ;
+}
+
+form button:hover #icon_full {
+  display: inline;
+}
+
+form button:hover #icon_empty {
+  display: none;
+}
+

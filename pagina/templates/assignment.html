@@ -1,10 +1,21 @@
-{% extends "house.html" %} {% block title %}Asignacion de posiciones{% endblock %}
+{% extends "house.html" %} {% block title %}Asignación de posiciones{% endblock %}
 {% block log %}{{code[0]|safe}}{% endblock %}
 {% block ini %}{{code[-1]|safe}}{% endblock %}
 {% block reg %}{{code[-2]|safe}}{% endblock %}
 {% block pfp %}{{code[1]|safe}}{% endblock %}
 
 {% block cont %}
+
+<script>
+
+  window.addEventListener('load', function() {
+    const selectElements = document.querySelectorAll('#user'); // Select all elements with ID "user"
+    selectElements.forEach(function(selectElement) {
+      selectElement.style.width = 'clamp(305px, 70vw, {{ (result * 16) + 191.61 + 64 }}px)';
+    });
+  });
+  </script>
+
 <style>
     .container {
         display: flex;
@@ -12,12 +23,16 @@
         align-items: center;
     }
     form {
-        max-width: 600px;
         width: 100%;
         border: 1px solid #d8dee4;
         background: #f6f8fa;
-        padding: 20px 100px 20px 80px;
+        padding: 20px 80px 20px 80px;
         border-radius: 20px;
+    }
+        /* Apply CSS to the select element */
+    #user {
+        width: auto;
+        white-space: normal; /* Allow text to wrap */
     }
 
     h1 {
@@ -50,9 +65,8 @@ padding-left: 65px;
 }
 
 </style>
-
-
 <style>
+
     #arrow {
     position: relative;
     top: 50px;
@@ -69,6 +83,7 @@ padding-left: 65px;
     padding: 4px;
 }
 </style>
+
 <div id="alignment">
 <div id="arrow">
     <svg onclick='window.location.href = "http://127.0.0.1:5000/profile"' xmlns="http://www.w3.org/2000/svg" height="40" viewBox="0 -960 960 960" width="40"><path d="m333.999-427.334 221.667 222.667-74.999 74-350-350L480-830l75.999 74.667-222 222H830v105.999H333.999Z"/></svg>
@@ -78,9 +93,8 @@ padding-left: 65px;
   <div class="item">
     <label for="user">Usuarios: </label>
       <br />
-    <select id="user" name="user">
-        <option value='--Seleccione un usuario--'>--Seleccione un usuario--</option>
-
+    <select id="user" class="js-example-basic-single" name="user" required>
+        <option value='--Seleccione un usuario--'>{{ largest_name }}Seleccione un usuario{{ largest_name }}</option>
     {% for i in range(non_admin_users|length) %}
         <option value="{{ roleless[i] }}">{{ non_admin_users[i] }}</option>
     {% endfor %}
@@ -90,7 +104,7 @@ padding-left: 65px;
   <div class="item">
     <label for="role">Roles: </label>
             <br />
-    <select id="role" name="role">
+    <select id="role" class="js-example-basic-single" name="role" required>
         <option value='------Seleccione un rol------'>------Seleccione un rol------</option>
         <option value="admin">Administrador</option>
         <option value="Editor">Editor</option>

@@ -1,4 +1,4 @@
-{% extends "house.html" %} {% block title %}Change{% endblock %}
+{% extends "house.html" %} {% block title %}Perfil del usuario{% endblock %}
 {% block log %}{{code[0]|safe}}{% endblock %}
 {% block ini %}{{code[-1]|safe}}{% endblock %}
 {% block reg %}{{code[-2]|safe}}{% endblock %}
@@ -6,7 +6,9 @@
 
 
 {% block cont %}
-<div id="oh_my_gah">
+<link rel="stylesheet" href="../static/profile_sc.css">
+
+<div id="sidebar">
   <div id="side">
 {{code[2]|safe}}
     <div id="Text-container">
@@ -17,34 +19,11 @@
 
 <form method="POST" enctype="multipart/form-data" ID="ffa">
 
-  <style>
-    label {
-      font-size: 0.9rem;
-    }
-
-    #Text-container {
-      padding-top: 5px;
-      width: 150px;
-    }
-
-    .btn-info {
-      width: 100%;
-    }
-
-    #side {
-      display: flex;
-      flex-direction: column;
-
-    }
-
-    input {
-      margin: 0;
-    }
-  </style>
 
   <div class="form-group">
     <label for="email">Correo electrónico:</label>
     <input
+      minlength='5'
       value="{{user[0][1]}}"
       type="email"
       class="form-control"
@@ -56,6 +35,7 @@
   <div class="form-group">
     <label for="firstName">Nombre:</label>
     <input
+      minlength='3'
       value="{{user[0][0]}}"
       type="text"
       class="form-control"
@@ -67,6 +47,7 @@
   <div class="form-group">
     <label for="lastName">Apellido:</label>
     <input
+      minlength='3'
       value="{{user[0][3]}}"
       type="text"
       class="form-control"
@@ -78,16 +59,18 @@
 
   <label for="password1">Contraseña:</label>
   <br />
-  <div class="form-group" id="pasi">
+  <div class="form-group" id="passw_wrapper">
     <input
+      minlength='8'
       value="{{user[0][4]}}"
       type="password"
+      size="35"
       class="form-control"
       id="password1"
       name="password1"
       placeholder="Introduzca su contraseña"
     />
-<button type="button" id="show-password">Mostrar</button>
+<button type="button" style="margin-right: 0; !important;" id="show-password">Mostrar</button>
 <script>
   const passwordInput = document.getElementById('password1');
   const showPasswordButton = document.getElementById('show-password');
@@ -97,81 +80,54 @@
     passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
   });
 </script>
+
   </div>
 
   <div class="form-group">
     <label for="picture">Suba su foto de perfil:</label>
     <br />
-        <input type="file" name="image" id="image" onchange="previewImage(event)">
+        <input type="file" name="image" id="image" onchange="handleFileSelection(event)" accept="image/*">
         <img id="preview">
-    <script>
-        function previewImage(event) {
+
+<script>
+function handleFileSelection(event) {
+    const input = event.target;
+    if (input.files.length > 0) {
+        const file = input.files[0];
+        const maxSize = 5 * 1024 * 1024; // 5MB maximum file size
+
+        if (file.size <= maxSize) {
             const reader = new FileReader();
             reader.onload = function() {
-                const preview = document.getElementById('preview');
+                let preview = document.getElementById('preview');
                 preview.src = reader.result;
-            }
-            reader.readAsDataURL(event.target.files[0]);}
-    </script>
-    <style>
-        #preview{
-            width: 50px;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            input.value = '';
+            alert("Imagen demasiado grande")
+
+            const reader = new FileReader();
+            reader.onload = function() {
+                let preview = document.getElementById('preview');
+                preview.src = '';
+            };
+            reader.readAsDataURL(file);
+
         }
-        #bou {
-          display: flex;
-          justify-content: space-between;
-        }
-    </style>
+    }
+}
+</script>
+
   </div>
 
 
   <br />
-  <div id="bou">
+  <div id="couple_Of_Buttons">
   <button type="submit" name="edit" value="Upload" class="btn btn-primary">Continuar</button>
   <button type="submit" name="delete" value="Upload" class="btn btn-danger">ELIMINAR PERFIL</button>
   </div>
   {% if user[0][2] == "admin" %}
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
-
-        #Google_btn {
-            background-color: #fafcfe;
-            border: 1px solid rgba(0, 0, 0, 0.17);
-            border-radius:35px;
-            margin-top: 15px;
-            height: 45px;
-            display: flex;+
-            justify-content: flex-start;
-            align-items: center;
-        }
-        #Google_btn:hover {
-            cursor: pointer;
-            background-color: #eaecee
-        }
-        #Google_btn svg {
-            margin-left: 20px;
-        }
-        #Google_btn p {
-            position: relative;
-            top: 8px;
-            font-weight: bold;
-            margin-left: 35px;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        #icon_full {
-          display: none;
-        }
-
-        #Google_btn:hover #icon_full {
-          display: block;
-        }
-
-        #Google_btn:hover #icon_empty {
-          display: none;
-        }
-
-    </style>
     <div id="Google_btn" onclick="window.location.href='http://127.0.0.1:5000/assignment'">
       <div id="svg-cont">
         <svg id="icon_empty" xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48"><path d="M400-485q-66 0-108-42t-42-108q0-66 42-108t108-42q66 0 108 42t42 108q0 66-42 108t-108 42ZM80-164v-94q0-35 17.5-63t50.5-43q72-32 133.5-46T400-424h23q-6 14-9 27.5t-5 32.5h-9q-58 0-113.5 12.5T172-310q-16 8-24 22.5t-8 29.5v34h269q5 18 12 32.5t17 27.5H80Zm587 44-10-66q-17-5-34.5-14.5T593-222l-55 12-25-42 47-44q-2-9-2-25t2-25l-47-44 25-42 55 12q12-12 29.5-21.5T657-456l10-66h54l10 66q17 5 34.5 14.5T795-420l55-12 25 42-47 44q2 9 2 25t-2 25l47 44-25 42-55-12q-12 12-29.5 21.5T731-186l-10 66h-54Zm27-121q36 0 58-22t22-58q0-36-22-58t-58-22q-36 0-58 22t-22 58q0 36 22 58t58 22ZM400-545q39 0 64.5-25.5T490-635q0-39-25.5-64.5T400-725q-39 0-64.5 25.5T310-635q0 39 25.5 64.5T400-545Zm0-90Zm9 411Z"/></svg>

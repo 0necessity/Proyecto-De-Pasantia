@@ -19,6 +19,10 @@ import google.auth.transport.requests
 import random
 import string
 import psycopg2
+import smtplib
+from email.message import EmailMessage
+from requests.structures import CaseInsensitiveDict
+
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # to allow Http traffic for local dev
 GOOGLE_CLIENT_ID = "767012225869-o403codh716ib53pnug7pdhpmnqs7mid.apps.googleusercontent.com"
@@ -82,7 +86,7 @@ def log_check():
                     <img src="data:image/png;base64,{encoded_image}" class="rounded-circle me-2 ms-auto">
                 </a>
                 """,
-                f'<img id="ppfp"src="data:image/png;base64,{encoded_image}"style="margin-right:8px;border-radius:20px;border:solid 1px #c7c8c8;">',
+                f'<img id="profile_picture"src="data:image/png;base64,{encoded_image}"style="margin-right:8px;border-radius:20px;border:solid 1px #c7c8c8;">',
                 "", "", "", ""
             ]
     if user_cookie is None:
@@ -134,7 +138,6 @@ def profile():
 
     else:
         user = []
-    print(user[0][2])
 
     if request.method == "POST":
         if 'edit' in request.form:
@@ -148,13 +151,20 @@ def profile():
                     e_mail = one_query(enmail, "*", "emails")
                     name = one_query(fname, "*", "fname")
 
-                if 0 < len(enmail) and match is None:
-                    flash("Ingresa un correo electrónico válido", category="error")
-                elif 0 < len(fname) < 3:
+                if not fname:
+                    fname = user[0][0]
+                if not enmail:
+                    enmail = user[0][1]
+                if not lname:
+                    lname = user[0][3]
+                if not password1:
+                    password1 = user[0][4]
+
+                if 0 < len(fname) < 3:
                     flash("Tu nombre debe ser más largo", category="error")
                 elif 0 < len(lname) < 3:
                     flash("Tu apellido debe ser más largo", category="error")
-                elif 0 < len(password1) < 9:
+                elif 0 < len(password1) < 8:
                     flash("Tu contraseña debe ser más larga", category="error")
                 elif name is not None and fname != usuario["name"]:
                     flash("Ese nombre ya está en uso, por favor selecciona uno nuevo", category="error")
@@ -168,6 +178,8 @@ def profile():
                     flash("Este tipo de archivos no es compatible, por favor asegúrate de cargar un archivo PNG o JPEG",
                           category="error")
 
+                elif not is_valid(enmail):
+                    flash("No se ha podido encontrar tu correo electrónico", category="error")
                 else:
                     try:
                         with connection:
@@ -247,7 +259,43 @@ def callback():
     global user_token
     user_token = id_info
 
-    return redirect(url_for('auth.continues'))
+    if "family_name" in user_token and len(user_token["family_name"]) > 2:
+        lname = user_token.get("family_name", "")
+        photo = b""
+        if "picture" in user_token:
+            photo_response = requests.get(user_token["picture"])
+            if photo_response.status_code == 200:
+                photo = photo_response.content
+
+        email = user_token["email"].lower()
+        fname = user_token["given_name"]
+        password1 = ''.join(
+            random.choice(string.ascii_letters + string.digits + string.punctuation) for i in range(20))
+        role = "Supervisor"
+
+        with connection:
+            with connection.cursor() as cu:
+                cu.execute("INSERT INTO sign_up VALUES (%s, %s, %s, %s, %s, %s);", (
+                    fname, email, role, lname, password1, photo))
+
+        biscuit = make_response(redirect(url_for('views.home')))
+
+        apli = create_app()
+
+        token = jwt.encode({
+            'name': fname,
+            "emails": email,
+            "role": role,
+            "lastname": lname,
+            "password": password1,
+            'expiration': str(datetime.utcnow() + timedelta(seconds=6000))
+        },
+            apli.config['SECRET_KEY'])
+
+        biscuit.set_cookie('user', token, 6000)
+        return biscuit
+    else:
+        return redirect(url_for('auth.continues'))
 
 
 @auth.route("/continuing", methods=['POST', "GET"])
@@ -273,14 +321,14 @@ def continues():
             fname = user_token["given_name"]
             password1 = ''.join(
                 random.choice(string.ascii_letters + string.digits + string.punctuation) for i in range(20))
-            role = request.form.get("role")
+            role = "Supervisor"
 
             with connection:
                 with connection.cursor() as cu:
                     cu.execute("INSERT INTO sign_up VALUES (%s, %s, %s, %s, %s, %s);", (
                         fname, email, role, lname, password1, photo))
 
-            biscuit = make_response(redirect(url_for('auth.login')))
+            biscuit = make_response(redirect(url_for('views.home')))
             apli = create_app()
 
             token = jwt.encode({
@@ -296,7 +344,7 @@ def continues():
             biscuit.set_cookie('user', token, 6000)
             return biscuit
 
-    return render_template("tranquilo.html", lname_status=lname_is_missing, code=log_check())
+    return render_template("register-confirmation.html", lname_status=lname_is_missing, code=log_check())
 
 
 temp_lo_email = ''
@@ -310,9 +358,16 @@ def password():
         temp_pass_code = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(30))
         global temp_lo_email
         temp_lo_email = request.form.get("email").lower()
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        match = re.match(pattern, str(temp_lo_email))
 
-        import smtplib
-        from email.message import EmailMessage
+        if match is None:
+            flash("Ingresa un correo electrónico válido", category="error")
+            return render_template("password_send.html")
+
+        if not is_valid(temp_lo_email):
+            flash("No se ha podido encontrar tu correo electrónico", category="error")
+            return render_template("password_send.html")
 
         smtp_server = "smtp.gmail.com"
         smtp_port = 587
@@ -340,7 +395,7 @@ def password():
         except Exception as e:
             pass
         return render_template("Mail.html")
-    return render_template("password_send.html")
+    return render_template("password_send.html", code=log_check())
 
 
 @auth.route("/password/<numbers>", methods=['POST', 'GET'])
@@ -348,14 +403,20 @@ def user_profile(numbers):
     if numbers == temp_pass_code:
         if request.method == "POST":
             password1 = str(request.form.get("password1"))
-            with connection:
-                with connection.cursor() as cu:
-                    cu.execute("""
-                        UPDATE sign_up
-                        SET password = %s
-                        WHERE emails = %s;
-                    """, (password1, temp_lo_email))
-            return redirect(url_for('auth.login'))
+            if len(password1) < 8:
+                flash("Tu contraseña debe ser más larga", category="error")
+            else:
+                with connection:
+                    with connection.cursor() as cu:
+                        cu.execute("""
+                            UPDATE sign_up
+                            SET password = %s
+                            WHERE emails = %s;
+                        """, (password1, temp_lo_email))
+
+                        new_user = make_response(redirect(url_for('auth.login')))
+                        new_user.set_cookie("user", value="", expires=0)
+                return new_user
         return render_template("pass_rec.html")
     return abort(404)
 
@@ -391,6 +452,10 @@ def login():
 
 @auth.route("/logout")
 def logout():
+
+    if not request.cookies.get('check'):
+        return render_template("lo_front.html")
+
     biscuit = make_response(redirect(url_for('views.home')))
     biscuit.set_cookie("user", value="", expires=0)
     return biscuit
@@ -447,6 +512,8 @@ def sign_up():
             flash("Tu apellido debe ser más largo", category="error")
         elif match is None:
             flash("Por favor ingresa una dirección de correo electrónico válida", category="error")
+        elif not is_valid(enmail):
+            flash("No se ha podido encontrar tu correo electrónico", category="error")
         elif len(photo) > 5000000:
             flash("El tamaño de tu imagen de perfil es demasiado grande. Por favor selecciona una más pequeña",
                   category="error")
@@ -510,3 +577,23 @@ def token_setter(value):
         apli.config['SECRET_KEY'])
 
     return token
+
+
+def is_valid(emails):
+    # This uses an API for Email Validation, it has a limited number of use-cases of 100, it will eventually break
+    url = f"https://api.emailvalidation.io/v1/info?email={emails}"
+
+    headers = CaseInsensitiveDict()
+    headers["apikey"] = "ema_live_MNg44PE5TUNZfpOrhtwtcu6Q9wEcAdOKvf3hPvh0"
+
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        json_resp = response.json()
+        format_valid = json_resp["format_valid"]
+        mx_found = json_resp["mx_found"]
+        smtp_check = json_resp["smtp_check"]
+        state = json_resp["state"]
+
+        return format_valid and mx_found and smtp_check and state == "deliverable"
+    return False
+

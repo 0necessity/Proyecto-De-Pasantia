@@ -11,12 +11,10 @@ def create_app():
 
     @app.errorhandler(404)
     def page_not_found(error):
-        print(request.path)
         return render_template("missing.html")
 
     @app.errorhandler(500)
     def page_not_found(error):
-        print(request.path)
         return render_template("missing.html")
 
     app.register_blueprint(views, url_prefix="/")
