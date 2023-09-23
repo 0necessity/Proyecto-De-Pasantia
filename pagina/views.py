@@ -36,7 +36,7 @@ try:
             owner_name TEXT, 
             category TEXT,
             photos BYTEA[],
-            id SERIAL PRIMARY KEY
+            id INTEGER
             );""")
 except:
     pass
@@ -217,6 +217,8 @@ def assignment():
 
 @views.route("/posts/<num>", methods=['POST', 'GET'])
 def posts(num):
+    if int(num) < 1:
+        num = "1"
     if not request.cookies.get('check'):
         return render_template("lo_posts.html")
 
@@ -361,10 +363,20 @@ def posts(num):
             elif "del" in request.form:
                 with entries:
                     with entries.cursor() as cu:
-                        cu.execute("DELETE FROM posts WHERE id = %s;", (int(num),))
-                        cu.execute("UPDATE posts SET id = id - 1 WHERE id > %s", (int(num),))
-                        return redirect(url_for('views.home'))
+                        cu.execute("SELECT MAX(id) FROM posts;")
+                        MAXIMUM = int(cu.fetchone()[0])
 
+                    with entries.cursor() as cu:
+                        cu.execute("DELETE FROM posts WHERE id = %s;", (int(num),))
+
+                    for i in range(int(num)+1, MAXIMUM+1, 1):
+                        try:
+                            with entries.cursor() as cu:
+                                cu.execute(f"UPDATE posts SET id = id - 1 WHERE id = {i}")
+                        except:
+                            pass
+
+                    return redirect(url_for('views.home'))
     return render_template("products.html", code=log_check(), poster=poster(), num=int(num) - 1)
 
 
@@ -424,8 +436,14 @@ def sell():
                 if "venta" in request.form:
                     with entries:
                         with entries.cursor() as cu:
-                            cu.execute("INSERT INTO posts VALUES (%s, %s, %s, %s, %s, %s, (%s));",
-                                       (title, price, quantity, desc, user["name"], category, (pho_by)))
+                            cu.execute("SELECT MAX(id) FROM posts;")
+                            MAXIMUM = cu.fetchone()[0]
+                            if MAXIMUM is None:
+                                MAXIMUM = 0
+                            MAXIMUM = int(MAXIMUM) + 1
+                        with entries.cursor() as cu:
+                            cu.execute("INSERT INTO posts VALUES (%s, %s, %s, %s, %s, %s, (%s), %s);",
+                                       (title, price, quantity, desc, user["name"], category, (pho_by), MAXIMUM))
                     flash("Articulo añadido con éxito", category="success")
 
     if user_cookie is not None:
