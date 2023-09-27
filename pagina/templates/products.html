@@ -6,8 +6,6 @@
 {% block cont %}
 <link rel="stylesheet" href="../static/product_sc.css">
 
-
-
 <script>
   var indexVaulue =1;
   showImg(indexVaulue);
@@ -61,15 +59,21 @@
     {% endif %}
   </div>
   <div id="desc_area">
-    <h1>{{poster["names"][num]}}</h1>
-    <p>{{poster["cate"][num]}}</p>
-    <h3>${{poster["price"][num]}}</h3>
+    <h1 style="margin: 0;">{{poster["names"][num]}}</h1>
+    <p style="font-size: 0.9rem;">{{poster["cate"][num]}}</p>
+    <div id="big_price">
+      <h3><span class="USS_and_Zeros">US$</span>{{poster["price"][num]}}<span class="USS_and_Zeros">00</span></h3>
+    </div>
+    <div id="Ven_and_Inv">
     <p>Vendedor: {{poster["owner"][num]}}</p>
+    <p><b> | </b></p>
     {% if poster["cuant"][num] != 0 %}
     <p>Inventario: {{poster["cuant"][num]}}</p>
     {% else %}
     <p>Inventario: Unidades agotadas</p>
     {% endif %}
+    </div>
+
     <div id="desc">{{poster["desc"][num]|safe}}</div>
 
   </div>

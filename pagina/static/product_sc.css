@@ -59,6 +59,7 @@
     position: relative;
   }
   .content .images {
+    border: 1px solid #dfdfdf;
     height: 100%;
     width: 100%;
   }
@@ -128,7 +129,11 @@
     right: 0;
   }
 
-
+  .USS_and_Zeros {
+    font-size: 0.9rem;
+    position: relative;
+    bottom: 0.511rem;
+  }
 
 #cuerpo {
   display: flex;
@@ -136,8 +141,17 @@
 }
 
 #desc {
-  text-align: justify;
-  }
+    border-top: 2px solid #BBBFBF;
+    text-align: justify;
+    padding-top: 16px;
+}
+
+#Ven_and_Inv {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
 
 #desc_area {
   padding-left: 35px;

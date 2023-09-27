@@ -278,7 +278,7 @@ def posts(num):
                         flash("Ese título es demasiado pequeño", category="error")
                     elif len(title) > 30:
                         flash("Ese título es demasiado grande", category="error")
-                    elif len(desc) > 1200:
+                    elif len(desc) > 1300:
                         flash("La descripción ha excedido el límite de caracteres", category="error")
                     else:
                         try:
@@ -316,7 +316,6 @@ def posts(num):
 
                     update(num, [("quant", quantity)])
                     flash("Artículo correctamente administrado", category="success")
-
                 # Admin
                 else:
                     pho_by, title, desc, category, owner = product_getter()
@@ -328,7 +327,7 @@ def posts(num):
                         flash("Ese título es demasiado corto", category="error")
                     elif len(title) > 30:
                         flash("Ese título es demasiado largo", category="error")
-                    elif len(desc) > 1200:
+                    elif len(desc) > 1300:
                         flash("La descripción superó el límite de caracteres", category="error")
                     else:
                         try:
@@ -388,25 +387,16 @@ def sell():
             user = deco(user_cookie)
 
             pho_by, title, desc, category, owner = product_getter()
-            desc = desc.replace("\n", "<br />")
-            desc = re.sub(r'<br />\s*<li>', '<li>', desc)
-            desc = re.sub(r'</ol>\s*<br />', '</ol>', desc)
-            desc = re.sub(r'</ul>\s*<br />', '</ul>', desc)
+            EMPTY = {"desc": ["[Descripción no disponible]"]}
+            desc = markup_checker(EMPTY, desc, 1)
 
-            desc = re.sub(r'</ol><br />', '</ol>', desc)
-            desc = re.sub(r'</ul><br />', '</ul>', desc)
-
-            desc = bleach.clean(desc, tags=['br', 'ul', 'ol', 'li'], strip=True)
-
-            if not desc:
-                desc = '[Descripción no disponible]'
             if not title:
                 flash("Por favor ingresa un título", category="error")
             elif len(title) < 2:
                 flash("Ese título es demasiado corto", category="error")
             elif len(title) > 30:
                 flash("Ese título es demasiado largo", category="error")
-            elif len(desc) > 1200:
+            elif len(desc) > 1300:
                 flash("La descripción excede el límite de caracteres", category="error")
             else:
                 try:
